@@ -1,46 +1,63 @@
-import { useState, useEffect } from 'react'
-import TreeNode from './components/TreeNode.jsx';
+import { useState } from 'react';
+import Sidebar from './components/Sidebar.jsx';
+import DomTree from './components/DomTree.jsx';
 import Selection from './components/Selection.jsx';
-import Navbar from './components/Navbar.jsx';
+
+// MUI imports
+import {
+  Typography, Box, Divider, Stack, TextField, Button,
+  Paper, Grid, Tooltip, IconButton,
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 function Home() {
   const [url, setUrl] = useState("");
   const [tree, setTree] = useState(null);
   const [retrieval_instructions, setInstructions] = useState([]);
 
+  // --- simple front-end auth state ---
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userName, setUserName] = useState("Guest");
+
+  const handleAuthClick = () => {
+    setIsAuthenticated(prev => !prev);
+  };
+  // --- end auth state ---
+
   const placeholder_data = {
-    "root": {
-      "id": 1,
-      "raw": "<html>...</html>",
-      "tag_type": "html",
-      "hasData": false,
-      "htmlAttributes": {},
-      "body": "",
-      "children": [
+    root: {
+      id: 1,
+      raw: "<html>...</html>",
+      tag_type: "html",
+      hasData: false,
+      htmlAttributes: {},
+      body: "",
+      children: [
         {
-          "id": 2,
-          "raw": "<h1>No Data Currently Displayed<h1/>",
-          "tag_type": "h1",
-          "hasData": true,
-          "htmlAttributes": { "class": "text" },
-          "body": "No Data Currently Displayed",
-          "retrieval_instructions": []
+          id: 2,
+          raw: "<h1>No Data Currently Displayed<h1/>",
+          tag_type: "h1",
+          hasData: true,
+          htmlAttributes: { class: "text" },
+          body: "No Data Currently Displayed",
+          retrieval_instructions: []
         },
         {
-          "id": 3,
-          "raw": "<p>Please enter a URL<p/>",
-          "tag_type": "p",
-          "hasData": true,
-          "htmlAttributes": { "class": "text" },
-          "body": "Please enter a URL",
-          "retrieval_instructions": []
+          id: 3,
+          raw: "<p>Please enter a URL<p/>",
+          tag_type: "p",
+          hasData: true,
+          htmlAttributes: { class: "text" },
+          body: "Please enter a URL",
+          retrieval_instructions: []
         }
       ],
-      "retrieval_instructions": []
+      retrieval_instructions: []
     }
-  }
+  };
 
-  const buildTree = async function() {
+  const buildTree = async function () {
     fetch(import.meta.env.VITE_API_URL + '/api/v1/scraper/dom-tree/build', {
       method: 'POST',
       headers: {
@@ -52,9 +69,9 @@ function Home() {
       .then(response => response.json())
       .then(json => { setTree(json.root); console.log(json); })
       .catch(error => console.error(error));
-  }
+  };
 
-  const scrape = async function() {
+  const scrape = async function () {
     console.log(retrieval_instructions);
     fetch(import.meta.env.VITE_API_URL + '/api/v1/scraper/scrape', {
       method: 'POST',
@@ -62,7 +79,7 @@ function Home() {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         url: url,
         retrieval_instructions: retrieval_instructions,
       })
@@ -70,76 +87,95 @@ function Home() {
       .then(response => response.json())
       .then(json => { console.log(json); })
       .catch(error => console.error(error));
-  }
+  };
 
   const addToInstructions = (instruction) => {
     setInstructions(prev => [...prev, instruction]);
-  }
+  };
 
   const handleSetKey = (index, value) => {
     setInstructions(prev =>
       prev.map((inst, i) =>
         i === index
           ? {
-              ...inst,
-              output: {
-                ...(inst.output || {}),
-                key: value,
-              },
-            }
+            ...inst,
+            output: {
+              ...(inst.output || {}),
+              key: value,
+            },
+          }
           : inst
       )
     );
   };
 
+  const drawerWidth = 240;
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start">
-      {/* Title */}
-      <h1 className="text-6xl text-emerald-200 font-extrabold mt-5 mb-5">Scrapegoat</h1>
-
-      {/* Input */}
-      <div className="flex space-x-4">
-        <input
-          type="text"
-          placeholder="Enter website URL..."
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          className="mb-10 w-96 p-4 text-lg bg-white rounded-2xl text-black shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-400"
-        />
-
-        <button
-          className="mb-10 px-8 py-4 text-lg font-bold bg-white rounded-2xl text-black shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-400 hover:bg-purple-200 transition"
-          onClick={buildTree}
-        >
-          Submit
-        </button>
-      </div>
-
-      {/* Output */}
-      <div className='w-[60rem]'>
-        {tree
-          ? <TreeNode node={tree} addToInstructions={addToInstructions} />
-          : <TreeNode node={placeholder_data.root} addToInstructions={addToInstructions} />
-        }
-      </div>
-
-      {/* Instruction Building */}
-      <h1 className="text-3xl font-bold mt-4 mb-2">Your Selection</h1>
-
-      <Selection
-        instructions={retrieval_instructions}
-        onSetKey={handleSetKey}
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+      {/* Sidebar */}
+      <Sidebar
+        drawerWidth={drawerWidth}
+        userName={userName}
+        isAuthenticated={isAuthenticated}
+        onAuthClick={handleAuthClick}
       />
 
-      <button
-        className="mt-6 mb-6 px-8 py-4 text-lg font-bold bg-white rounded-2xl text-black shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-400 hover:bg-purple-200 transition"
-        onClick={scrape}
-      >
-        Scrape
-      </button>
+      {/* Main Content */}
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        {/* URL input row */}
+        <Paper sx={{ p: 2, mb: 2 }}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
+            <TextField
+              fullWidth
+              label="Enter website URL"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') buildTree(); }}
+            />
+            <Button variant="contained" onClick={buildTree} startIcon={<SearchIcon />}>
+              Submit
+            </Button>
+          </Stack>
+        </Paper>
 
-    </div>
-  )
+        {/* Two-column content */}
+        <Grid container spacing={2}>
+          {/* Left: DOM Tree */}
+          <Grid item xs={12} md={7}>
+            <DomTree
+              tree={tree}
+              placeholderRoot={placeholder_data.root}
+              addToInstructions={addToInstructions}
+            />
+          </Grid>
+
+          {/* Right: Your Selection */}
+          <Grid item xs={12} md={5}>
+            <Paper sx={{ p: 2, minHeight: 420, display: 'flex', flexDirection: 'column' }}>
+              <Stack direction="row" alignItems="center" justifyContent="space-between" mb={1}>
+                <Typography variant="h6">Your Selection</Typography>
+                <Tooltip title="Refresh">
+                  <IconButton size="small"><RefreshIcon fontSize="small" /></IconButton>
+                </Tooltip>
+              </Stack>
+              <Divider sx={{ mb: 2, opacity: 0.1 }} />
+              <Box sx={{ flex: 1, overflow: 'auto' }}>
+                <Selection
+                  instructions={retrieval_instructions}
+                  onSetKey={handleSetKey}
+                />
+              </Box>
+              <Stack direction="row" justifyContent="flex-end" mt={2} spacing={1}>
+                <Button variant="outlined" onClick={buildTree}>Rebuild</Button>
+                <Button variant="contained" color="secondary" onClick={scrape}>Scrape</Button>
+              </Stack>
+            </Paper>
+          </Grid>
+        </Grid>
+      </Box>
+    </Box>
+  );
 }
 
-export default Home
+export default Home;
