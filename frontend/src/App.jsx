@@ -21,15 +21,12 @@ function App() {
   const [userName, setUserName] = useState("Guest");
   const handleAuthClick = () => setIsAuthenticated(p => !p);
 
-  const drawerWidth = 240;
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
         <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
           <Sidebar
-            drawerWidth={drawerWidth}
             userName={userName}
             isAuthenticated={isAuthenticated}
             onAuthClick={handleAuthClick}

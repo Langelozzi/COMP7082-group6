@@ -1,4 +1,3 @@
-// Sidebar.jsx
 import {
   Drawer,
   Box,
@@ -14,7 +13,7 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 
-function Sidebar({ drawerWidth = 240 }) {
+function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useUser();
@@ -24,7 +23,6 @@ function Sidebar({ drawerWidth = 240 }) {
 
   const handleAuthClick = async () => {
     if (isAuthenticated) {
-      // Log out and send them Home. No global useEffect redirect needed.
       await Promise.resolve(logout?.());
       navigate('/');
     } else {
@@ -38,9 +36,9 @@ function Sidebar({ drawerWidth = 240 }) {
     <Drawer
       variant="permanent"
       sx={{
-        width: drawerWidth,
+        width: 240,
         '& .MuiDrawer-paper': {
-          width: drawerWidth,
+          width: 240,
           boxSizing: 'border-box',
           bgcolor: 'background.paper',
           borderRight: '1px solid rgba(255,255,255,0.06)',
@@ -60,7 +58,7 @@ function Sidebar({ drawerWidth = 240 }) {
             letterSpacing: 0.5,
           }}
         >
-          Scrapegoat
+          ScrapeGoat
         </Typography>
 
         {/* Account section */}
