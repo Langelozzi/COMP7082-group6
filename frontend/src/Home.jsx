@@ -1,5 +1,5 @@
 // Home.jsx
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import ConfigSelection from './components/ConfigSelection.jsx';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -14,30 +14,23 @@ function Home({ isAuthenticated = false, userName = 'Guest' }) {
   const [retrieval_instructions, setInstructions] = useState([]);
   const navigate = useNavigate();
 
+  // Track last URL we built for (prevents duplicate calls on same value)
+  const lastBuiltUrlRef = useRef('');
+
   // --- fetch / scrape logic ---
   const placeholder_data = {
     root: {
       id: 1,
       tag_type: 'html',
       children: [
-        {
-          id: 2,
-          tag_type: 'h1',
-          body: 'No Data Currently Displayed',
-          hasData: true,
-        },
-        {
-          id: 3,
-          tag_type: 'p',
-          body: 'Please enter a URL',
-          hasData: true,
-        },
+        { id: 2, tag_type: 'h1', body: 'No Data Currently Displayed', hasData: true },
+        { id: 3, tag_type: 'p', body: 'Please enter a URL', hasData: true },
       ],
     },
   };
 
-  const buildTree = async () => {
-    if (!url) return;
+  const buildTree = async (givenUrl) => {
+    const targetUrl = (givenUrl ?? url);
     try {
       const res = await fetch(
         import.meta.env.VITE_API_URL + '/api/v1/scraper/dom-tree/build',
@@ -47,11 +40,12 @@ function Home({ isAuthenticated = false, userName = 'Guest' }) {
             Accept: 'application/json',
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ url }),
+          body: JSON.stringify({ url: targetUrl }),
         }
       );
       const json = await res.json();
       setTree(json.root);
+      lastBuiltUrlRef.current = targetUrl;
       console.log('Tree built:', json);
     } catch (err) {
       console.error(err);
@@ -68,10 +62,7 @@ function Home({ isAuthenticated = false, userName = 'Guest' }) {
             Accept: 'application/json',
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            url,
-            retrieval_instructions,
-          }),
+          body: JSON.stringify({ url, retrieval_instructions }),
         }
       );
       const json = await res.json();
@@ -87,12 +78,7 @@ function Home({ isAuthenticated = false, userName = 'Guest' }) {
   const handleSetKey = (index, value) => {
     setInstructions((prev) =>
       prev.map((inst, i) =>
-        i === index
-          ? {
-              ...inst,
-              output: { ...(inst.output || {}), key: value },
-            }
-          : inst
+        i === index ? { ...inst, output: { ...(inst.output || {}), key: value } } : inst
       )
     );
   };
@@ -100,6 +86,17 @@ function Home({ isAuthenticated = false, userName = 'Guest' }) {
   const handleFlowChange = (_, val) => val && setFlow(val);
   const handlePickConfig = (e) => setSelectedConfig(e.target.value);
   const handleRebuild = () => buildTree();
+
+  // 🔊 LISTEN FOR INPUT (debounced, no validation)
+  useEffect(() => {
+    if (url === lastBuiltUrlRef.current) return; // avoid rebuild on same value
+
+    const t = setTimeout(() => {
+      buildTree(url);
+    }, 700);
+
+    return () => clearTimeout(t);
+  }, [url]);
 
   // --- render ---
   return (
@@ -123,12 +120,6 @@ function Home({ isAuthenticated = false, userName = 'Guest' }) {
               placeholder="https://example.com"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  buildTree();
-                }
-              }}
               InputProps={{
                 sx: {
                   fontSize: 16,
