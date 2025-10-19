@@ -3,14 +3,13 @@ import React from 'react';
 import {
   Paper, Stack, Typography, ToggleButtonGroup, ToggleButton,
   Button, Tooltip, FormControl, InputLabel, Select, MenuItem,
-  Grid, Divider, Box, IconButton
+  Divider, Box, IconButton
 } from '@mui/material';
 import UploadIcon from '@mui/icons-material/Upload';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
-// These live in the same folder as this file
 import DomTree from './DomTree.jsx';
 import Selection from './NodeSelection.jsx';
 
@@ -23,10 +22,8 @@ function ConfigSelection({
   onUploadGoat,
   onRebuild,
 }) {
-  // ---- Local state for the NEW CONFIG path ----
   const [retrievalInstructions, setInstructions] = React.useState([]);
 
-  // placeholder DOM for empty state
   const placeholderRoot = React.useMemo(() => ({
     id: 1,
     tag_type: 'html',
@@ -113,41 +110,66 @@ function ConfigSelection({
         </Stack>
       </Paper>
 
-      {/* STEP 3 — New Config authoring (only when flow === 'new') */}
       {flow === 'new' && (
-        <Grid container spacing={2} sx={{ mb: 2 }}>
-          <Grid item xs={12} md={7}>
-            <Paper sx={{ p: 2, height: '100%' }}>
-              <Typography variant="h6" sx={{ mb: 1 }}>DOM Tree</Typography>
-              <Divider sx={{ mb: 2, opacity: 0.1 }} />
-              <DomTree
-                tree={null}
-                placeholderRoot={placeholderRoot}
-                addToInstructions={addToInstructions}
-              />
-            </Paper>
-          </Grid>
+        <>
+          {/* Full-screen DOM Tree */}
+          <Box
+            sx={{
+              height: '100vh',
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              p: 2,
+              boxSizing: 'border-box',
+            }}
+          >
+            <DomTree
+              tree={null}
+              placeholderRoot={placeholderRoot}
+              addToInstructions={addToInstructions}
+            />
+          </Box>
 
-          <Grid item xs={12} md={5}>
-            <Paper sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
-                <Typography variant="h6">Your Selection</Typography>
-                <Tooltip title="Rebuild DOM">
-                  <IconButton size="small" onClick={onRebuild}>
-                    <RefreshIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              </Stack>
-              <Divider sx={{ mb: 2, opacity: 0.1 }} />
-              <Box sx={{ flex: 1, overflow: 'auto' }}>
+          {/* Full-screen Selection */}
+          <Box
+            sx={{
+              height: '100vh',
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              p: 2,
+              boxSizing: 'border-box',
+            }}
+          >
+            <Paper
+              sx={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+              }}
+            >
+              <Box sx={{ p: 2, pb: 0, flexShrink: 0 }}>
+                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                  <Typography variant="h6">Your Selection</Typography>
+                  <Tooltip title="Rebuild DOM">
+                    <IconButton size="small" onClick={onRebuild}>
+                      <RefreshIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
+                <Divider sx={{ mt: 1, opacity: 0.1 }} />
+              </Box>
+
+              <Box sx={{ flex: 1, overflow: 'auto', p: 2, pt: 1 }}>
                 <Selection
                   instructions={retrievalInstructions}
                   onSetKey={handleSetKey}
                 />
               </Box>
             </Paper>
-          </Grid>
-        </Grid>
+          </Box>
+        </>
       )}
     </>
   );

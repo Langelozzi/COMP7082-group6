@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useTheme } from "@mui/material/styles";
 
 function TreeNode({ node, addToInstructions = () => {}, level = 0 }) {
+  const theme = useTheme();
   const [expanded, setExpanded] = useState(false);
 
   if (!node) return null;
@@ -12,47 +14,76 @@ function TreeNode({ node, addToInstructions = () => {}, level = 0 }) {
 
   const handleAdd = (e) => {
     e.stopPropagation();
-
-    const instruction = {
+    addToInstructions({
       node_query: `nq_${node.id}`,
-      output: {
-        location: `l${level}`,
-        key: node.tag_type || `k_${node.id}`,
-      },
+      output: { location: `l${level}`, key: node.tag_type || `k_${node.id}` },
       flags: {},
-      _preview: {
-        id: node.id,
-        tag_type: node.tag_type,
-        raw: node.raw,
-        level
-      }  
-    };
-
-    addToInstructions(instruction);
+      _preview: { id: node.id, tag_type: node.tag_type, raw: node.raw, level },
+    });
   };
 
   return (
     <div className="my-3">
       <div
-        className="flex items-center px-6 py-4 rounded-lg bg-violet-950 hover:bg-purple-800 shadow-md w-full cursor-pointer"
-        style={nodeStyle}
+        className="flex items-center px-6 py-4 rounded-lg shadow-md w-full cursor-pointer transition-colors"
+        style={{
+          ...nodeStyle,
+          backgroundColor: expanded
+            ? theme.palette.action.selected
+            : theme.palette.background.paper,
+          color: theme.palette.text.primary,
+        }}
         onClick={() => setExpanded(!expanded)}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = theme.palette.action.hover;
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = expanded
+            ? theme.palette.action.selected
+            : theme.palette.background.paper;
+        }}
       >
-        <span className="font-mono text-emerald-300 text-lg">
+        {/* Tag name — was text-emerald-300 */}
+        <span
+          style={{
+            fontFamily: "monospace",
+            color: theme.palette.primary.main, // theme color
+            fontSize: "1.05rem",
+          }}
+        >
           &lt;{node.tag_type}&gt;
         </span>
-        <span className="ml-4 text-base text-gray-300 truncate">{node.raw}</span>
+
+        {/* Raw text — was text-gray-300 */}
+        <span
+          className="ml-4 text-base truncate"
+          style={{ color: theme.palette.text.secondary }}
+        >
+          {node.raw}
+        </span>
 
         <div className="ml-auto flex items-center space-x-3">
+          {/* Plus icon — was text-green-400 */}
           <span
-            className="text-green-400 hover:text-green-300 cursor-pointer"
+            style={{
+              color: theme.palette.primary.main,
+              cursor: "pointer",
+              fontWeight: 600,
+            }}
             onClick={handleAdd}
             title="Add to query"
           >
-            ➕
+            ╋
           </span>
 
-          <span className="text-sm text-purple-300 cursor-pointer">
+          {/* Caret — was text-purple-300 / blue */}
+          <span
+            style={{
+              fontSize: "0.9rem",
+              color: theme.palette.primary.light,
+              cursor: "pointer",
+            }}
+          >
             {expanded ? "▲" : "▼"}
           </span>
         </div>
@@ -60,26 +91,32 @@ function TreeNode({ node, addToInstructions = () => {}, level = 0 }) {
 
       {expanded && (
         <div
-          className="mt-2 p-4 rounded-lg bg-black/70 text-sm space-y-3 shadow-inner w-full"
+          className="mt-2 p-4 rounded-lg shadow-inner text-sm space-y-3"
           style={{
             marginLeft: `${level * 20 + 20}px`,
             width: `calc(100% - ${(level + 1) * 20}px)`,
+            backgroundColor: theme.palette.background.default,
+            color: theme.palette.text.primary,
           }}
         >
           {node.hasData && node.body && (
             <div>
-              <span className="font-bold text-purple-200">Body:</span>{" "}
-              <span className="text-gray-200">{node.body}</span>
+              <span style={{ fontWeight: 600, color: theme.palette.primary.light }}>
+                Body:
+              </span>{" "}
+              <span style={{ color: theme.palette.text.secondary }}>{node.body}</span>
             </div>
           )}
 
           {Object.keys(node.htmlAttributes || {}).length > 0 && (
             <div>
-              <span className="font-bold text-purple-200">Attributes:</span>
-              <ul className="list-disc list-inside ml-4 text-gray-200">
+              <span style={{ fontWeight: 600, color: theme.palette.primary.light }}>
+                Attributes:
+              </span>
+              <ul className="list-disc list-inside ml-4">
                 {Object.entries(node.htmlAttributes).map(([k, v]) => (
                   <li key={k}>
-                    <span className="text-emerald-300">{k}</span>: {v}
+                    <span style={{ color: theme.palette.primary.main }}>{k}</span>: {v}
                   </li>
                 ))}
               </ul>
@@ -88,8 +125,10 @@ function TreeNode({ node, addToInstructions = () => {}, level = 0 }) {
 
           {node.retrieval_instructions?.length > 0 && (
             <div>
-              <span className="font-bold text-purple-200">Retrieval:</span>
-              <ul className="list-disc list-inside ml-4 text-gray-200">
+              <span style={{ fontWeight: 600, color: theme.palette.primary.light }}>
+                Retrieval:
+              </span>
+              <ul className="list-disc list-inside ml-4">
                 {node.retrieval_instructions.map((inst, i) => (
                   <li key={i}>{inst.action}</li>
                 ))}
@@ -106,7 +145,7 @@ function TreeNode({ node, addToInstructions = () => {}, level = 0 }) {
               key={child.id}
               node={child}
               level={level + 1}
-              addToInstructions={addToInstructions} // keep forwarding
+              addToInstructions={addToInstructions}
             />
           ))}
         </div>
