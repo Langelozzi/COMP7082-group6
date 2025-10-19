@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ConfigSelection from './components/ConfigSelection.jsx';
 import { Box, Paper, Stack, Typography, TextField, Button } from '@mui/material';
 
@@ -8,6 +9,7 @@ function Home() {
   const [tree, setTree] = useState(null);
   const [retrieval_instructions, setInstructions] = useState([]);
   const lastBuiltUrlRef = useRef('');
+  const navigate = useNavigate();
 
   const placeholderRoot = {
     id: 1,
@@ -37,26 +39,6 @@ function Home() {
       lastBuiltUrlRef.current = targetUrl;
     } catch (err) {
       console.error('buildTree error:', err);
-    }
-  };
-
-  const scrape = async () => {
-    try {
-      const res = await fetch(
-        import.meta.env.VITE_API_URL + '/api/v1/scraper/scrape',
-        {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ url, retrieval_instructions }),
-        }
-      );
-      const json = await res.json();
-      console.log('Scraped data:', json);
-    } catch (err) {
-      console.error(err);
     }
   };
 
@@ -129,7 +111,7 @@ function Home() {
       >
         <Button
           variant="contained"
-          onClick={scrape}
+          onClick={() => {navigate('/results')}}
           sx={{
             px: 3,
             py: 1.2,
