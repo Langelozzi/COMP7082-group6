@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import Sidebar from './components/Sidebar.jsx';
 import DomTree from './components/DomTree.jsx';
 import Selection from './components/Selection.jsx';
 
@@ -15,15 +14,6 @@ function Home() {
   const [url, setUrl] = useState("");
   const [tree, setTree] = useState(null);
   const [retrieval_instructions, setInstructions] = useState([]);
-
-  // --- simple front-end auth state ---
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userName, setUserName] = useState("Guest");
-
-  const handleAuthClick = () => {
-    setIsAuthenticated(prev => !prev);
-  };
-  // --- end auth state ---
 
   const placeholder_data = {
     root: {
@@ -80,8 +70,8 @@ function Home() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        url: url,
-        retrieval_instructions: retrieval_instructions,
+        url,
+        retrieval_instructions,
       })
     })
       .then(response => response.json())
@@ -98,82 +88,69 @@ function Home() {
       prev.map((inst, i) =>
         i === index
           ? {
-            ...inst,
-            output: {
-              ...(inst.output || {}),
-              key: value,
-            },
-          }
+              ...inst,
+              output: {
+                ...(inst.output || {}),
+                key: value,
+              },
+            }
           : inst
       )
     );
   };
 
-  const drawerWidth = 240;
-
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
-      {/* Sidebar */}
-      <Sidebar
-        drawerWidth={drawerWidth}
-        userName={userName}
-        isAuthenticated={isAuthenticated}
-        onAuthClick={handleAuthClick}
-      />
+    <Box sx={{ display: 'block' }}>
+      {/* URL input row */}
+      <Paper sx={{ p: 2, mb: 2 }}>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
+          <TextField
+            fullWidth
+            label="Enter website URL"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') buildTree(); }}
+          />
+          <Button variant="contained" onClick={buildTree} startIcon={<SearchIcon />}>
+            Submit
+          </Button>
+        </Stack>
+      </Paper>
 
-      {/* Main Content */}
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        {/* URL input row */}
-        <Paper sx={{ p: 2, mb: 2 }}>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
-            <TextField
-              fullWidth
-              label="Enter website URL"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') buildTree(); }}
-            />
-            <Button variant="contained" onClick={buildTree} startIcon={<SearchIcon />}>
-              Submit
-            </Button>
-          </Stack>
-        </Paper>
-
-        {/* Two-column content */}
-        <Grid container spacing={2}>
-          {/* Left: DOM Tree */}
-          <Grid item xs={12} md={7}>
-            <DomTree
-              tree={tree}
-              placeholderRoot={placeholder_data.root}
-              addToInstructions={addToInstructions}
-            />
-          </Grid>
-
-          {/* Right: Your Selection */}
-          <Grid item xs={12} md={5}>
-            <Paper sx={{ p: 2, minHeight: 420, display: 'flex', flexDirection: 'column' }}>
-              <Stack direction="row" alignItems="center" justifyContent="space-between" mb={1}>
-                <Typography variant="h6">Your Selection</Typography>
-                <Tooltip title="Refresh">
-                  <IconButton size="small"><RefreshIcon fontSize="small" /></IconButton>
-                </Tooltip>
-              </Stack>
-              <Divider sx={{ mb: 2, opacity: 0.1 }} />
-              <Box sx={{ flex: 1, overflow: 'auto' }}>
-                <Selection
-                  instructions={retrieval_instructions}
-                  onSetKey={handleSetKey}
-                />
-              </Box>
-              <Stack direction="row" justifyContent="flex-end" mt={2} spacing={1}>
-                <Button variant="outlined" onClick={buildTree}>Rebuild</Button>
-                <Button variant="contained" color="secondary" onClick={scrape}>Scrape</Button>
-              </Stack>
-            </Paper>
-          </Grid>
+      {/* Two-column content */}
+      <Grid container spacing={2}>
+        {/* Left: DOM Tree */}
+        <Grid item xs={12} md={7}>
+          <DomTree
+            tree={tree}
+            placeholderRoot={placeholder_data.root}
+            addToInstructions={addToInstructions}
+          />
         </Grid>
-      </Box>
+
+        {/* Right: Your Selection */}
+        <Grid item xs={12} md={5}>
+          <Paper sx={{ p: 2, minHeight: 420, display: 'flex', flexDirection: 'column' }}>
+            <Stack direction="row" alignItems="center" justifyContent="space-between" mb={1}>
+              <Typography variant="h6">Your Selection</Typography>
+              <Tooltip title="Refresh">
+                <IconButton size="small"><RefreshIcon fontSize="small" /></IconButton>
+              </Tooltip>
+            </Stack>
+            <Divider sx={{ mb: 2, opacity: 0.1 }} />
+            <Box sx={{ flex: 1, overflow: 'auto' }}>
+              <Selection
+                instructions={retrieval_instructions}
+                onSetKey={handleSetKey}
+              />
+            </Box>
+            <Stack direction="row" justifyContent="flex-end" mt={2} spacing={1}>
+              <Button variant="outlined" onClick={buildTree}>Rebuild</Button>
+              <Button variant="contained" color="secondary" onClick={scrape}>Scrape</Button>
+            </Stack>
+          </Paper>
+        </Grid>
+      </Grid>
     </Box>
   );
 }

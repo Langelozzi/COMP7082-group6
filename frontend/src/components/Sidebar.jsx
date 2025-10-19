@@ -1,3 +1,4 @@
+// Sidebar.jsx
 import {
   Drawer,
   Box,
@@ -10,13 +11,29 @@ import {
   ListItemButton,
   ListItemText,
 } from '@mui/material';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
 
-function Sidebar({
-  drawerWidth = 240,
-  userName = 'Guest',
-  isAuthenticated = false,
-  onAuthClick = () => {},
-}) {
+function Sidebar({ drawerWidth = 240 }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user, logout } = useUser();
+
+  const isAuthenticated = Boolean(user);
+  const userName = user?.name || user?.username || user?.email || 'Guest';
+
+  const handleAuthClick = async () => {
+    if (isAuthenticated) {
+      // Log out and send them Home. No global useEffect redirect needed.
+      await Promise.resolve(logout?.());
+      navigate('/');
+    } else {
+      navigate('/login');
+    }
+  };
+
+  const go = (path) => () => navigate(path);
+
   return (
     <Drawer
       variant="permanent"
@@ -58,18 +75,26 @@ function Sidebar({
             <Button
               size="small"
               variant={isAuthenticated ? 'outlined' : 'contained'}
-              onClick={onAuthClick}
+              onClick={handleAuthClick}
             >
               {isAuthenticated ? 'Logout' : 'Login'}
             </Button>
           </Stack>
         </Paper>
 
+        {/* Nav list */}
         <List dense sx={{ mt: 0.5 }}>
-          <ListItemButton selected>
+          <ListItemButton
+            selected={location.pathname === '/'}
+            onClick={go('/')}
+          >
             <ListItemText primary="Home" />
           </ListItemButton>
-          <ListItemButton>
+
+          <ListItemButton
+            selected={location.pathname.startsWith('/configs')}
+            onClick={go('/configs')}
+          >
             <ListItemText primary="My Configs" />
           </ListItemButton>
         </List>
