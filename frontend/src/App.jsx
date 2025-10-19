@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ThemeProvider, createTheme, CssBaseline, Box } from '@mui/material';
+import { ThemeProvider, createTheme, CssBaseline, Box, GlobalStyles } from '@mui/material';
 import { useState } from 'react';
 import Sidebar from "./components/Sidebar";
 import Login from "./Login";
@@ -24,6 +24,15 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
+
+      {/* Makes scrollbar dark mode */}
+      <GlobalStyles styles={{
+        '::-webkit-scrollbar': { width: 8 },
+        '::-webkit-scrollbar-track': { background: '#0b0f19' },
+        '::-webkit-scrollbar-thumb': { background: '#333', borderRadius: 8 },
+        '*': { scrollbarWidth: 'thin', scrollbarColor: '#333 #0b0f19' },
+      }} />
+
       <CssBaseline />
       <Router>
         <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
