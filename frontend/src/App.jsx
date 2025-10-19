@@ -5,6 +5,7 @@ import Sidebar from "./components/Sidebar";
 import Login from "./Login";
 import Configs from "./Configs";
 import Home from "./Home";
+import Results from "./Results";
 
 const theme = createTheme({
   palette: {
@@ -36,6 +37,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/configs" element={<Configs />} />
+              <Route path="/results" element={<Results />} />
             </Routes>
           </Box>
         </Box>

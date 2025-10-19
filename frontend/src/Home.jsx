@@ -1,6 +1,7 @@
 // Home.jsx
 import { useState } from 'react';
 import ConfigSelection from './components/ConfigSelection.jsx';
+import { useNavigate } from 'react-router-dom';
 
 // MUI
 import {
@@ -9,7 +10,7 @@ import {
 
 function Home({ isAuthenticated = false, userName = 'Guest' }) {
   const [url, setUrl] = useState('');
-  const [flow, setFlow] = useState('import'); // 'import' | 'saved' | 'new'
+  const [flow, setFlow] = useState('new'); // 'new' | 'saved' | 'import'
   const [selectedConfig, setSelectedConfig] = useState('');
 
   // --- stubs (no functionality) ---
@@ -17,7 +18,8 @@ function Home({ isAuthenticated = false, userName = 'Guest' }) {
   const handleUploadGoat = () => {};
   const handlePickConfig = (e) => setSelectedConfig(e.target.value);
   const handleRebuild = () => {};
-  const handleScrape = () => {};
+
+  const navigate = useNavigate();
 
   return (
     <Box sx={{ p: 1 }}>
@@ -52,7 +54,7 @@ function Home({ isAuthenticated = false, userName = 'Guest' }) {
         </Stack>
       </Paper>
 
-      {/* STEP 2 — Choose how to provide a config (now renders DOM & Selection when flow === 'new') */}
+      {/* STEP 2 - Config Selection */}
       <ConfigSelection
         flow={flow}
         onFlowChange={handleFlowChange}
@@ -63,16 +65,30 @@ function Home({ isAuthenticated = false, userName = 'Guest' }) {
         onRebuild={handleRebuild}
       />
 
-      {/* Scrape CTA */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+      {/* Scrape */}
+      <Box
+        sx={(theme) => ({
+          position: 'fixed',
+          right: `max(24px, env(safe-area-inset-right))`,
+          bottom: `max(24px, env(safe-area-inset-bottom))`,
+          zIndex: theme.zIndex.tooltip + 1, // sits above page content
+        })}
+      >
         <Button
           variant="contained"
-          onClick={handleScrape}
-          sx={{ fontSize: '1rem', px: 3, py: 1 }}
+          onClick={() => { navigate('/results') }}
+          sx={{
+            px: 3,
+            py: 1.2,
+            borderRadius: 9999,
+            fontSize: '1rem',
+            boxShadow: 6,
+          }}
         >
-          Scrape
+          Scrape ➔
         </Button>
       </Box>
+
     </Box>
   );
 }

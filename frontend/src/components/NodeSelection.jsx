@@ -3,30 +3,38 @@ import { useTheme, alpha } from "@mui/material/styles";
 export default function Selection({ instructions = [], onSetKey }) {
   const theme = useTheme();
 
+  // Shared container padding that matches the DOM Tree content gutter
+  const containerStyle = {
+    paddingInline: theme.spacing(3), // == px:3 of MUI (matches DomTree body p:3)
+  };
+
   if (!instructions || instructions.length === 0) {
     return (
-      <div
-        className="w-full max-w-[1200px] mx-auto mt-6 p-10 rounded-2xl shadow-xl border"
-        style={{
-          background: `linear-gradient(135deg, ${alpha(
-            theme.palette.primary.main,
-            0.08
-          )}, ${alpha(theme.palette.background.paper, 0.6)})`,
-          color: theme.palette.text.primary,
-          borderColor: alpha(theme.palette.divider, 0.6),
-        }}
-      >
+      <div className="w-full max-w-[1400px] mx-auto mt-6" style={containerStyle}>
         <div
-          className="text-xl font-semibold mb-3"
-          style={{ color: theme.palette.text.primary }}
+          className="p-10 rounded-2xl shadow-xl border"
+          style={{
+            color: theme.palette.text.primary,
+            borderColor: alpha(theme.palette.divider, 0.6),
+          }}
         >
-          Nothing selected yet
+          <div
+            className="text-xl font-semibold mb-3"
+            style={{ color: theme.palette.text.primary }}
+          >
+            Nothing selected yet
+          </div>
+          <p
+            className="text-sm"
+            style={{ color: theme.palette.text.secondary, opacity: 0.9 }}
+          >
+            Click the{" "}
+            <span style={{ color: theme.palette.primary.main, fontWeight: 700 }}>
+              ╋
+            </span>{" "}
+            icon on any node to add it here.
+          </p>
         </div>
-        <p className="text-sm" style={{ color: theme.palette.text.secondary, opacity: 0.9 }}>
-          Click the{" "}
-          <span style={{ color: theme.palette.primary.main, fontWeight: 700 }}>╋</span>{" "}
-          icon on any node to add it here.
-        </p>
       </div>
     );
   }
@@ -36,7 +44,10 @@ export default function Selection({ instructions = [], onSetKey }) {
   };
 
   return (
-    <div className="w-full max-w-[1400px] mx-auto mt-6 space-y-4">
+    <div
+      className="w-full max-w-[1400px] mx-auto mt-6 space-y-4"
+      style={containerStyle}
+    >
       {instructions.map((inst, idx) => {
         const pv = inst._preview || {};
         const leftPad = Math.min(5, pv.level ?? 0);
@@ -48,10 +59,6 @@ export default function Selection({ instructions = [], onSetKey }) {
             className="relative flex items-center gap-5 px-6 py-5 rounded-xl border transition-all duration-200"
             style={{
               marginLeft: `${leftPad * 12}px`,
-              background: `linear-gradient(135deg, ${alpha(
-                theme.palette.background.paper,
-                0.9
-              )}, ${alpha(theme.palette.action.selected, 0.6)})`,
               borderColor: alpha(theme.palette.divider, 0.6),
               boxShadow: `0 6px 18px ${alpha(theme.palette.common.black, 0.25)}`,
             }}
@@ -63,7 +70,10 @@ export default function Selection({ instructions = [], onSetKey }) {
               )}`;
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = alpha(theme.palette.divider, 0.6);
+              e.currentTarget.style.borderColor = alpha(
+                theme.palette.divider,
+                0.6
+              );
               e.currentTarget.style.boxShadow = `0 6px 18px ${alpha(
                 theme.palette.common.black,
                 0.25
