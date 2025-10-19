@@ -7,11 +7,6 @@ function TreeNode({ node, addToInstructions = () => {}, level = 0 }) {
 
   if (!node) return null;
 
-  const nodeStyle = {
-    marginLeft: `${level * 40}px`,
-    width: `calc(100% - ${level * 40}px)`,
-  };
-
   const handleAdd = (e) => {
     e.stopPropagation();
     addToInstructions({
@@ -27,7 +22,8 @@ function TreeNode({ node, addToInstructions = () => {}, level = 0 }) {
       <div
         className="flex items-center px-6 py-4 rounded-lg shadow-md w-full cursor-pointer transition-colors"
         style={{
-          ...nodeStyle,
+          marginLeft: `${level * 40}px`,
+          width: `calc(100% - ${level * 40}px)`,
           backgroundColor: expanded
             ? theme.palette.action.selected
             : theme.palette.background.paper,
@@ -43,18 +39,16 @@ function TreeNode({ node, addToInstructions = () => {}, level = 0 }) {
             : theme.palette.background.paper;
         }}
       >
-        {/* Tag name — was text-emerald-300 */}
         <span
           style={{
             fontFamily: "monospace",
-            color: theme.palette.primary.main, // theme color
+            color: theme.palette.primary.main,
             fontSize: "1.05rem",
           }}
         >
           &lt;{node.tag_type}&gt;
         </span>
 
-        {/* Raw text — was text-gray-300 */}
         <span
           className="ml-4 text-base truncate"
           style={{ color: theme.palette.text.secondary }}
@@ -63,7 +57,6 @@ function TreeNode({ node, addToInstructions = () => {}, level = 0 }) {
         </span>
 
         <div className="ml-auto flex items-center space-x-3">
-          {/* Plus icon — was text-green-400 */}
           <span
             style={{
               color: theme.palette.primary.main,
@@ -75,8 +68,6 @@ function TreeNode({ node, addToInstructions = () => {}, level = 0 }) {
           >
             ╋
           </span>
-
-          {/* Caret — was text-purple-300 / blue */}
           <span
             style={{
               fontSize: "0.9rem",

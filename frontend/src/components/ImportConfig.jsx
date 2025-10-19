@@ -7,7 +7,7 @@ import CloseIcon from '@mui/icons-material/Close';
 
 export default function ImportConfig({
   file = null,
-  onChange,      // (file | null) => void
+  onChange,
   hint = 'Import an existing configuration file.',
 }) {
   const [selected, setSelected] = React.useState(file);
@@ -21,7 +21,7 @@ export default function ImportConfig({
       setSelected(f);
       onChange?.(f);
     }
-    e.target.value = ''; // allow re-selecting same file later
+    e.target.value = '';
   };
 
   const clearFile = () => {
@@ -34,36 +34,49 @@ export default function ImportConfig({
       <input
         ref={inputRef}
         type="file"
-        style={{ display: 'none' }}
+        hidden
         onChange={handleInput}
       />
       <Typography variant="body2" sx={{ opacity: 0.7, fontSize: '0.85rem' }}>
         {hint}
-    </Typography>
-    <Button variant="outlined" size="small" startIcon={<UploadIcon />} onClick={openPicker} sx={{ mt: 1, }}>
+      </Typography>
+
+      <Button
+        variant="outlined"
+        size="small"
+        startIcon={<UploadIcon />}
+        onClick={openPicker}
+        sx={{ mt: 1 }}
+      >
         Choose file
-    </Button>
-    
+      </Button>
 
       {selected && (
         <Paper
           variant="outlined"
           sx={{
+            mt: 1,
             px: 1.25,
             py: 0.75,
-            mt: 1,
-            display: 'inline-flex',
+            display: 'flex',
             alignItems: 'center',
             gap: 1,
             borderStyle: 'dashed',
           }}
         >
-          <Box sx={{ maxWidth: 320, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <Box
+            sx={{
+              maxWidth: 320,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
             <Typography variant="body2" title={selected.name}>
               {selected.name}
             </Typography>
           </Box>
-          <IconButton size="small" aria-label="remove file" onClick={clearFile}>
+          <IconButton size="small" onClick={clearFile}>
             <CloseIcon fontSize="small" />
           </IconButton>
         </Paper>

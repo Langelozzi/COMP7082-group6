@@ -1,16 +1,14 @@
 import { useTheme, alpha } from "@mui/material/styles";
 
-export default function Selection({ instructions = [], onSetKey }) {
+export default function NodeSelection({ instructions = [], onSetKey }) {
   const theme = useTheme();
 
-  // Shared container padding that matches the DOM Tree content gutter
-  const containerStyle = {
-    paddingInline: theme.spacing(3), // == px:3 of MUI (matches DomTree body p:3)
-  };
-
-  if (!instructions || instructions.length === 0) {
+  if (!instructions?.length) {
     return (
-      <div className="w-full max-w-[1400px] mx-auto mt-6" style={containerStyle}>
+      <div
+        className="w-full max-w-[1400px] mx-auto mt-6"
+        style={{ paddingInline: theme.spacing(3) }}
+      >
         <div
           className="p-10 rounded-2xl shadow-xl border"
           style={{
@@ -29,7 +27,12 @@ export default function Selection({ instructions = [], onSetKey }) {
             style={{ color: theme.palette.text.secondary, opacity: 0.9 }}
           >
             Click the{" "}
-            <span style={{ color: theme.palette.primary.main, fontWeight: 700 }}>
+            <span
+              style={{
+                color: theme.palette.primary.main,
+                fontWeight: 700,
+              }}
+            >
               ╋
             </span>{" "}
             icon on any node to add it here.
@@ -39,14 +42,12 @@ export default function Selection({ instructions = [], onSetKey }) {
     );
   }
 
-  const handleKeyChange = (idx, val) => {
-    if (typeof onSetKey === "function") onSetKey(idx, val);
-  };
+  const handleKeyChange = (idx, val) => onSetKey?.(idx, val);
 
   return (
     <div
       className="w-full max-w-[1400px] mx-auto mt-6 space-y-4"
-      style={containerStyle}
+      style={{ paddingInline: theme.spacing(3) }}
     >
       {instructions.map((inst, idx) => {
         const pv = inst._preview || {};
@@ -80,7 +81,7 @@ export default function Selection({ instructions = [], onSetKey }) {
               )}`;
             }}
           >
-            {/* Index Badge */}
+            {/* Index badge */}
             <div
               className="absolute -left-4 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full text-white text-xs font-bold flex items-center justify-center shadow-md"
               style={{ backgroundColor: theme.palette.primary.main }}
@@ -88,11 +89,13 @@ export default function Selection({ instructions = [], onSetKey }) {
               {idx + 1}
             </div>
 
-            {/* Key Input */}
+            {/* Key input */}
             <div className="flex flex-col w-44 shrink-0">
               <label
                 className="text-xs uppercase tracking-wide mb-1"
-                style={{ color: alpha(theme.palette.text.secondary, 0.9) }}
+                style={{
+                  color: alpha(theme.palette.text.secondary, 0.9),
+                }}
               >
                 Key
               </label>
@@ -127,7 +130,7 @@ export default function Selection({ instructions = [], onSetKey }) {
               />
             </div>
 
-            {/* Node Info */}
+            {/* Node info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-baseline gap-2">
                 <span
@@ -144,10 +147,11 @@ export default function Selection({ instructions = [], onSetKey }) {
                 </span>
               </div>
 
-              {/* Metadata */}
               <div
                 className="text-xs mt-1 space-x-3"
-                style={{ color: alpha(theme.palette.text.secondary, 0.8) }}
+                style={{
+                  color: alpha(theme.palette.text.secondary, 0.8),
+                }}
               >
                 {inst.node_query && <span>query: {inst.node_query}</span>}
                 {inst.output?.location && (

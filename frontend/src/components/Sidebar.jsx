@@ -46,7 +46,6 @@ function Sidebar() {
       }}
     >
       <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-        {/* App/brand */}
         <Typography
           variant="h6"
           sx={{
@@ -61,7 +60,6 @@ function Sidebar() {
           ScrapeGoat
         </Typography>
 
-        {/* Account section */}
         <Paper variant="outlined" sx={{ p: 1.5 }}>
           <Stack direction="row" spacing={1.5} alignItems="center">
             <Avatar sx={{ width: 36, height: 36 }} />
@@ -80,7 +78,6 @@ function Sidebar() {
           </Stack>
         </Paper>
 
-        {/* Nav list */}
         <List dense sx={{ mt: 0.5 }}>
           <ListItemButton
             selected={location.pathname === '/'}

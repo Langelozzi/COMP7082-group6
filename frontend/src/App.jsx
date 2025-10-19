@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ThemeProvider, createTheme, CssBaseline, Box, GlobalStyles } from '@mui/material';
-import { useState } from 'react';
+import { ThemeProvider, createTheme, CssBaseline, Box, GlobalStyles } from "@mui/material";
+import { useState } from "react";
 import Sidebar from "./components/Sidebar";
 import Login from "./Login";
 import Configs from "./Configs";
@@ -9,10 +9,10 @@ import Results from "./Results";
 
 const theme = createTheme({
   palette: {
-    mode: 'dark',
-    background: { default: '#0b0f19', paper: '#111827' },
-    primary: { main: '#60a5fa' },
-    secondary: { main: '#a78bfa' },
+    mode: "dark",
+    background: { default: "#0b0f19", paper: "#111827" },
+    primary: { main: "#60a5fa" },
+    secondary: { main: "#a78bfa" },
   },
   shape: { borderRadius: 14 },
 });
@@ -35,7 +35,7 @@ function App() {
 
       <CssBaseline />
       <Router>
-        <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+        <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "background.default" }}>
           <Sidebar
             userName={userName}
             isAuthenticated={isAuthenticated}

@@ -1,4 +1,3 @@
-// components/ConfigSelection.jsx
 import React from 'react';
 import {
   Paper, Stack, Typography, ToggleButtonGroup, ToggleButton, Box
@@ -8,28 +7,20 @@ import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 import DomTree from './DomTree.jsx';
-import Selection from './NodeSelection.jsx';
+import NodeSelection from './NodeSelection.jsx';
 import ImportConfig from './ImportConfig.jsx';
 
 function ConfigSelection({
   flow,
   onFlowChange,
-  isAuthenticated,
-  selectedConfig,
-  onPickConfig,
-  onRebuild,
-
-  // NEW props coming from Home.jsx
-  tree,                       // the built DOM tree from API
-  placeholderTree,            // optional fallback from Home
-  instructions,               // instruction list from Home
-  onAddInstruction,           // (inst) => void
-  onSetKey,                   // (idx, val) => void
+  tree,
+  placeholderTree,
+  instructions = [],
+  onAddInstruction = () => {},
+  onSetKey = () => {},
 }) {
-  // Keep your local import state (unchanged)
   const [importedFile, setImportedFile] = React.useState(null);
 
-  // Local fallback placeholder (unchanged), used only if parent didn't pass one
   const localPlaceholderRoot = React.useMemo(
     () => ({
       id: 1,
@@ -42,12 +33,7 @@ function ConfigSelection({
     []
   );
 
-  // Choose effective roots/data from either parent or local fallback
-  const effectivePlaceholder = placeholderTree ?? localPlaceholderRoot;
-  const effectiveInstructions = instructions ?? [];
-  const handleAddInstruction = onAddInstruction ?? (() => {});
-  const handleSetKeySafe = onSetKey ?? (() => {});
-  const handleImportChange = (fileOrNull) => setImportedFile(fileOrNull);
+  const effectivePlaceholder = placeholderTree || localPlaceholderRoot;
 
   return (
     <>
@@ -62,7 +48,6 @@ function ConfigSelection({
             </Typography>
           </Stack>
 
-          {/* Toggle group */}
           <Stack direction="row" justifyContent="center">
             <ToggleButtonGroup value={flow} exclusive onChange={onFlowChange} size="small">
               <ToggleButton value="new">
@@ -92,7 +77,7 @@ function ConfigSelection({
           {flow === 'import' && (
             <ImportConfig
               file={importedFile}
-              onChange={handleImportChange}
+              onChange={setImportedFile}
               hint="Import an existing configuration file."
             />
           )}
@@ -101,7 +86,7 @@ function ConfigSelection({
 
       {flow === 'new' && (
         <>
-          {/* TREEDOM */}
+          {/* DOM Tree */}
           <Box
             sx={{
               height: '100vh',
@@ -113,9 +98,9 @@ function ConfigSelection({
             }}
           >
             <DomTree
-              tree={tree}                            // ⟵ built tree from parent
-              placeholderRoot={effectivePlaceholder} // ⟵ your fallback UI
-              addToInstructions={handleAddInstruction}
+              tree={tree}
+              placeholderRoot={effectivePlaceholder}
+              addToInstructions={onAddInstruction}
             />
           </Box>
 
@@ -152,9 +137,9 @@ function ConfigSelection({
               </Box>
 
               <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
-                <Selection
-                  instructions={effectiveInstructions}
-                  onSetKey={handleSetKeySafe}
+                <NodeSelection
+                  instructions={instructions}
+                  onSetKey={onSetKey}
                 />
               </Box>
             </Paper>

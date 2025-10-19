@@ -1,36 +1,25 @@
-// Home.jsx
 import { useState, useEffect, useRef } from 'react';
 import ConfigSelection from './components/ConfigSelection.jsx';
-import { useNavigate } from 'react-router-dom';
-import {
-  Box, Paper, Stack, Typography, TextField, Button
-} from '@mui/material';
+import { Box, Paper, Stack, Typography, TextField, Button } from '@mui/material';
 
-function Home({ isAuthenticated = false, userName = 'Guest' }) {
+function Home() {
   const [url, setUrl] = useState('');
   const [flow, setFlow] = useState('new');
-  const [selectedConfig, setSelectedConfig] = useState('');
   const [tree, setTree] = useState(null);
   const [retrieval_instructions, setInstructions] = useState([]);
-  const navigate = useNavigate();
-
-  // Track last URL we built for (prevents duplicate calls on same value)
   const lastBuiltUrlRef = useRef('');
 
-  // --- fetch / scrape logic ---
-  const placeholder_data = {
-    root: {
-      id: 1,
-      tag_type: 'html',
-      children: [
-        { id: 2, tag_type: 'h1', body: 'No Data Currently Displayed', hasData: true },
-        { id: 3, tag_type: 'p', body: 'Please enter a URL', hasData: true },
-      ],
-    },
+  const placeholderRoot = {
+    id: 1,
+    tag_type: 'html',
+    children: [
+      { id: 2, tag_type: 'h1', body: 'No Data Currently Displayed', hasData: true },
+      { id: 3, tag_type: 'p', body: 'Please enter a URL', hasData: true },
+    ],
   };
 
   const buildTree = async (givenUrl) => {
-    const targetUrl = (givenUrl ?? url);
+    const targetUrl = givenUrl ?? url;
     try {
       const res = await fetch(
         import.meta.env.VITE_API_URL + '/api/v1/scraper/dom-tree/build',
@@ -46,9 +35,8 @@ function Home({ isAuthenticated = false, userName = 'Guest' }) {
       const json = await res.json();
       setTree(json.root);
       lastBuiltUrlRef.current = targetUrl;
-      console.log('Tree built:', json);
     } catch (err) {
-      console.error(err);
+      console.error('buildTree error:', err);
     }
   };
 
@@ -72,8 +60,9 @@ function Home({ isAuthenticated = false, userName = 'Guest' }) {
     }
   };
 
-  const addToInstructions = (instruction) =>
+  const addToInstructions = (instruction) => {
     setInstructions((prev) => [...prev, instruction]);
+  };
 
   const handleSetKey = (index, value) => {
     setInstructions((prev) =>
@@ -83,36 +72,24 @@ function Home({ isAuthenticated = false, userName = 'Guest' }) {
     );
   };
 
-  const handleFlowChange = (_, val) => val && setFlow(val);
-  const handlePickConfig = (e) => setSelectedConfig(e.target.value);
-  const handleRebuild = () => buildTree();
+  const handleFlowChange = (_, val) => {
+    if (val) setFlow(val);
+  };
 
-  // 🔊 LISTEN FOR INPUT (debounced, no validation)
   useEffect(() => {
-    if (url === lastBuiltUrlRef.current) return; // avoid rebuild on same value
-
-    const t = setTimeout(() => {
-      buildTree(url);
-    }, 700);
-
+    if (url === lastBuiltUrlRef.current) return;
+    const t = setTimeout(() => buildTree(url), 700);
     return () => clearTimeout(t);
   }, [url]);
 
-  // --- render ---
   return (
     <Box sx={{ p: 1 }}>
-      {/* STEP 1 — URL */}
       <Paper sx={{ p: { xs: 2.5, md: 3 }, mb: 2.5 }}>
         <Stack spacing={1} alignItems="center" textAlign="center">
-          <Typography
-            variant="overline"
-            sx={{ letterSpacing: 1.2, opacity: 0.7, mb: 0, lineHeight: 1.2 }}
-          >
+          <Typography variant="overline" sx={{ letterSpacing: 1.2, opacity: 0.7, lineHeight: 1.2 }}>
             Step 1
           </Typography>
-
           <Typography variant="h6">Enter Website URL</Typography>
-
           <Box sx={{ width: '100%', maxWidth: 760, mx: 'auto' }}>
             <TextField
               fullWidth
@@ -132,22 +109,16 @@ function Home({ isAuthenticated = false, userName = 'Guest' }) {
         </Stack>
       </Paper>
 
-      {/* STEP 2 — Config Selection */}
       <ConfigSelection
         flow={flow}
         onFlowChange={handleFlowChange}
-        isAuthenticated={isAuthenticated}
-        selectedConfig={selectedConfig}
-        onPickConfig={handlePickConfig}
-        onRebuild={handleRebuild}
         tree={tree}
-        placeholderTree={placeholder_data.root}
+        placeholderTree={placeholderRoot}
         instructions={retrieval_instructions}
         onAddInstruction={addToInstructions}
         onSetKey={handleSetKey}
       />
 
-      {/* Floating Scrape button */}
       <Box
         sx={(theme) => ({
           position: 'fixed',
