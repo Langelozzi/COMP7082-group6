@@ -6,3 +6,5 @@ greenlet # sqlalchemy dependency
 sqlalchemy
 pydantic[email]
 alembic
+pyjwt # JWT token handling
+bcrypt # Password hashing

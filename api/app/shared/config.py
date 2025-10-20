@@ -9,6 +9,7 @@ load_dotenv()
 class AppSettings(BaseModel):
     db_connection_string: str = Field(..., alias="DB_CONNECTION_STRING")
     frontend_url: str = Field(..., alias="FRONTEND_URL")
+    jwt_secret_key: str = Field(..., alias="JWT_SECRET_KEY")
 
     class Config:
         # Allow reading env vars directly
