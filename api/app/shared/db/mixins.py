@@ -1,4 +1,5 @@
 import uuid
+import sqlalchemy as sa
 from datetime import datetime
 from sqlalchemy import DateTime
 from sqlalchemy.dialects.postgresql import UUID
@@ -26,7 +27,7 @@ class UUIDPkMixin:
         UUID(as_uuid=True),
         primary_key=True,
         default=uuid.uuid4,
-        server_default="gen_random_uuid()",
+        server_default=sa.text("gen_random_uuid()"),
         unique=True,
         index=True,
         nullable=False,

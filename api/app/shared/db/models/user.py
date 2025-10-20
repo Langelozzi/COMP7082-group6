@@ -4,10 +4,10 @@ from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.shared.db.base import Base
 from app.shared.db.mixins import UUIDPkMixin, TimestampMixin
-from app.shared.db.models.folder import Folder
 
 if TYPE_CHECKING:
     from .folder import Folder
+    from .user_auth import UserAuth
 
 
 class User(Base, UUIDPkMixin, TimestampMixin):
@@ -20,4 +20,8 @@ class User(Base, UUIDPkMixin, TimestampMixin):
 
     folders: Mapped[list["Folder"]] = relationship(
         "Folder", back_populates="user", cascade="all, delete-orphan"
+    )
+
+    auth_providers: Mapped[list["UserAuth"]] = relationship(
+        "UserAuth", back_populates="user", cascade="all, delete-orphan"
     )

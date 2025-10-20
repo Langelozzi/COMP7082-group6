@@ -4,11 +4,7 @@ from app.shared.config import settings
 from .base import Base
 
 # Must import in order to load models into memory for init_db
-from .models.user import User
-from .models.user import Folder
-from .models.website import Website
-from .models.scraper_config import ScraperConfig
-from .models.scrape_result import ScrapeResult
+from .models import *
 
 engine = create_async_engine(settings.db_connection_string, echo=True)
 

@@ -39,6 +39,7 @@ config = context.config
 fileConfig(str(config.config_file_name))
 
 # override the URL from .env
+print(str(DB_URL))
 config.set_main_option("sqlalchemy.url", str(DB_URL))
 
 
@@ -74,7 +75,7 @@ def run_migrations_online() -> None:
             str(config.get_main_option("sqlalchemy.url")), poolclass=pool.NullPool
         )
 
-        async with connectable.connect() as connection:
+        async with connectable.begin() as connection:
             await connection.run_sync(
                 lambda conn: context.configure(
                     connection=conn, target_metadata=target_metadata
