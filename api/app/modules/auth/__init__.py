@@ -18,7 +18,7 @@ from .dependencies import get_current_user, require_authentication, require_auth
 from .models import (
     LoginRequest,
     RegisterRequest,
-    AuthResponse,
+    AuthUser,
     LogoutResponse,
     AuthStatusResponse,
 )
@@ -34,7 +34,7 @@ __all__ = [
     "EmailAuthProvider",
     "LoginRequest",
     "RegisterRequest",
-    "AuthResponse",
+    "AuthUser",
     "LogoutResponse",
     "AuthStatusResponse",
 ]

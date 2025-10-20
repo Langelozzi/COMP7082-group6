@@ -13,7 +13,7 @@ from app.modules.auth.helpers import set_auth_cookie, clear_auth_cookie, create_
 from app.modules.auth.models import (
     LoginRequest,
     RegisterRequest,
-    AuthResponse,
+    AuthUser,
     LogoutResponse,
     AuthStatusResponse,
 )
@@ -31,7 +31,7 @@ router = APIRouter()
 email_provider = EmailAuthProvider()
 
 
-@router.post("/register", response_model=AuthResponse, status_code=201)
+@router.post("/register", response_model=AuthUser, status_code=201)
 async def handle_register(
     request: RegisterRequest,
     response: Response,
@@ -67,7 +67,7 @@ async def handle_register(
     # Set HTTP-only cookie
     set_auth_cookie(response, access_token)
     
-    return AuthResponse(
+    return AuthUser(
         user_id=str(user.id),
         email=user.email,
         first_name=user.first_name,
@@ -75,7 +75,7 @@ async def handle_register(
     )
 
 
-@router.post("/login", response_model=AuthResponse)
+@router.post("/login", response_model=AuthUser)
 async def handle_login(
     request: LoginRequest,
     response: Response,
@@ -98,7 +98,7 @@ async def handle_login(
     # Set HTTP-only cookie
     set_auth_cookie(response, access_token)
     
-    return AuthResponse(
+    return AuthUser(
         user_id=str(user.id),
         email=user.email,
         first_name=user.first_name,
@@ -116,9 +116,9 @@ async def handle_logout(response: Response):
     return LogoutResponse(message="Logged out successfully")
 
 
-@router.get("/me", response_model=AuthResponse)
+@router.get("/me", response_model=AuthUser)
 async def handle_get_current_user(
-    current_user: AuthResponse = Depends(require_auth),
+    current_user: AuthUser = Depends(require_auth),
 ):
     """
     Get the current authenticated user's information.

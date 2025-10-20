@@ -9,7 +9,7 @@ from fastapi import Depends, Request, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.shared.db.session import get_db
-from app.modules.auth.models import AuthResponse
+from app.shared.models.auth_user import AuthUser
 from app.modules.auth.helpers import get_token_from_cookie, decode_access_token
 from app.shared.db.models.user import User
 from sqlalchemy import select
@@ -47,7 +47,7 @@ async def get_current_user_from_token(
 async def get_current_user_dependency(
     request: Request,
     db: AsyncSession = Depends(get_db),
-) -> Optional[AuthResponse]:
+) -> Optional[AuthUser]:
     """
     Dependency to get the current authenticated user.
     Tries to get token from cookie first, then from Authorization header.
@@ -55,7 +55,7 @@ async def get_current_user_dependency(
     
     Usage:
         @router.get("/my-route")
-        async def my_route(user: Optional[AuthResponse] = Depends(get_current_user_dependency)):
+        async def my_route(user: Optional[AuthUser] = Depends(get_current_user_dependency)):
             if user:
                 # User is authenticated
                 pass
@@ -74,7 +74,7 @@ async def get_current_user_dependency(
     if not user:
         return None
     
-    return AuthResponse(
+    return AuthUser(
         user_id=str(user.id),
         email=user.email,
         first_name=user.first_name,
@@ -83,15 +83,15 @@ async def get_current_user_dependency(
 
 
 def require_auth(
-    current_user: Optional[AuthResponse] = Depends(get_current_user_dependency),
-) -> AuthResponse:
+    current_user: Optional[AuthUser] = Depends(get_current_user_dependency),
+) -> AuthUser:
     """
     Dependency that requires authentication.
     Raises 401 if user is not authenticated.
     
     Usage:
         @router.get("/protected-route")
-        async def protected_route(user: AuthResponse = Depends(require_auth)):
+        async def protected_route(user: AuthUser = Depends(require_auth)):
             # User is guaranteed to be authenticated here
             user_id = user.user_id
             email = user.email
