@@ -16,7 +16,6 @@ class User(Base, UUIDPkMixin, TimestampMixin):
     first_name: Mapped[str] = mapped_column(String(100), nullable=True)
     last_name: Mapped[str] = mapped_column(String(100), nullable=True)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
-    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
 
     folders: Mapped[list["Folder"]] = relationship(
         "Folder", back_populates="user", cascade="all, delete-orphan"

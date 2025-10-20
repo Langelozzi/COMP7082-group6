@@ -91,7 +91,6 @@ class EmailAuthProvider(AuthProvider):
             email=request.email,
             first_name=request.first_name,
             last_name=request.last_name,
-            password_hash=password_hash  # Store in user table for backward compatibility
         )
         user = await create_user(db, user)
         
