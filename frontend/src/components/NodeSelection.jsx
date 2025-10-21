@@ -1,4 +1,5 @@
 import { useTheme, alpha } from "@mui/material/styles";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 
 export default function NodeSelection({ instructions = [], onSetKey }) {
   const theme = useTheme();
@@ -27,14 +28,7 @@ export default function NodeSelection({ instructions = [], onSetKey }) {
             style={{ color: theme.palette.text.secondary, opacity: 0.9 }}
           >
             Click the{" "}
-            <span
-              style={{
-                color: theme.palette.primary.main,
-                fontWeight: 700,
-              }}
-            >
-              ╋
-            </span>{" "}
+            <AddCircleOutlineIcon />{" "}
             icon on any node to add it here.
           </p>
         </div>
