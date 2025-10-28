@@ -54,8 +54,8 @@ function Login() {
         sx={{
           p: { xs: 4, sm: 6 },
           width: "100%",
-          maxWidth: 520,
-          borderRadius: 4,
+          maxWidth: 600,
+          borderRadius: 3,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -107,11 +107,11 @@ function Login() {
                   fontSize: 16,
                   bgcolor: "white",
                   color: "black",
-                  py: 1.4,
+                  py: 1,
                 }
               },
               inputLabel: {
-                sx: { color: "maroon" },
+                sx: { color: "DimGray" },
               }
             }}
           />
@@ -129,11 +129,11 @@ function Login() {
                   fontSize: 16,
                   bgcolor: "white",
                   color: "black",
-                  py: 1.4,
+                  py: 1,
                 }
               },
               inputLabel: {
-                sx: { color: "maroon" },
+                sx: { color: "DimGray" },
               }
             }}
           />
