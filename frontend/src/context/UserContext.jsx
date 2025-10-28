@@ -3,27 +3,27 @@ import { createContext, useContext, useState } from "react"
 const UserContext = createContext(null)
 
 export const UserProvider = ({ children }) => {
-    const [user, setUser] = useState(null)
+  const [user, setUser] = useState(null)
 
-    const login = (userData) => {
-        setUser(userData)
-    }
+  const login = (userData) => {
+    setUser(userData)
+  }
 
-    const logout = (userData) => {
-        setUser(null)
-    }
+  const logout = (userData) => {
+    setUser(null)
+  }
 
-    return (
-        <UserContext.Provider value={{ user, login, logout }}>
-        {children}
-        </UserContext.Provider>
-    );
+  return (
+    <UserContext.Provider value={{ user, login, logout }}>
+      {children}
+    </UserContext.Provider>
+  );
 }
 
 export const useUser = () => {
-    const context = useContext(UserContext)
-    if (!context) {
-        throw new Error("useUser must be used within a UserProvider")
-    }
-    return context
+  const context = useContext(UserContext)
+  if (!context) {
+    throw new Error("useUser must be used within a UserProvider")
+  }
+  return context
 }
