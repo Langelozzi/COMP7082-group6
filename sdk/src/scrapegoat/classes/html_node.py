@@ -1,7 +1,5 @@
 """ """
 
-from typing import Any
-
 
 class HTMLNode:
     """ """
@@ -29,7 +27,7 @@ class HTMLNode:
         raw: str,
         tag_type: str,
         has_data: bool = False,
-        html_attributes: dict[str, Any] | None = None,
+        html_attributes: dict[str, any] = None,
         body: str = "",
         parent=None,
     ):
@@ -45,17 +43,11 @@ class HTMLNode:
         self.children = []
         self.retrieval_instructions = ""
         self.parent = parent
-<<<<<<< HEAD
-
-    def to_dict(self) -> dict:
-        """ """
-=======
         self.extract_fields = None
         self.extract_flags = None
-    
+
     def to_dict(self) -> str:
-        """
-        """
+        """ """
         dict_representation = {}
         if self.extract_fields is not None:
             for field in self.extract_fields:
@@ -74,7 +66,6 @@ class HTMLNode:
                     elif field == "body":
                         dict_representation["body"] = self.body
             return dict_representation
->>>>>>> 8ac1ab97f50a12536e1258424bb2da98ea7eaf15
         return {
             "id": self.id,
             "raw": self.raw,
@@ -85,23 +76,13 @@ class HTMLNode:
             "children": [child.to_dict() for child in self.children],
             "retrieval_instructions": self.retrieval_instructions,
             "parent": self.parent.id if self.parent else None,
-<<<<<<< HEAD
+            "extract_fields": self.extract_fields,
+            "extract_flags": self.extract_flags,
         }
 
     def to_string(self) -> str:
         """ """
-        return f"HTMLNode(id={self.id}, tag_type={self.tag_type}, has_data={self.has_data}, html_attributes={self.html_attributes}, body='{self.body}', children={len(self.children)}, parent={self.parent.id if self.parent else None}, retrieval_instructions='{self.retrieval_instructions}')"
-=======
-            "extract_fields": self.extract_fields,
-            "extract_flags": self.extract_flags,
-        }
-                
-
-    def to_string(self) -> str:
-        """
-        """
         return str(self.to_dict())
->>>>>>> 8ac1ab97f50a12536e1258424bb2da98ea7eaf15
 
     def to_html(self, indent=0) -> str:
         """ """
@@ -150,7 +131,7 @@ class HTMLNode:
             current = current.parent
         return ancestors
 
-    def get_descendants(self, tag_type: str | None = None, **html_attributes) -> list:
+    def get_descendants(self, tag_type: str = None, **html_attributes) -> list:
         """ """
         descendants = []
         for child in self.children:
@@ -174,13 +155,9 @@ class HTMLNode:
         if self.html_attributes.get(key) is None:
             return False
         return value in self.html_attributes.get(key)
-<<<<<<< HEAD
 
-=======
-    
     def has_attribute(self, key, value=None) -> bool:
-        """
-        """
+        """ """
         if key == "tag_type":
             if value is None:
                 return self.tag_type is not None
@@ -198,8 +175,7 @@ class HTMLNode:
                 return self.body is not None
             return self.body == value
         return False
-    
->>>>>>> 8ac1ab97f50a12536e1258424bb2da98ea7eaf15
+
     def is_descendant_of(self, tag_type) -> bool:
         """ """
         return any(ancestor.tag_type == tag_type for ancestor in self.get_ancestors())
@@ -209,14 +185,12 @@ class HTMLNode:
         self.retrieval_instructions = instruction
 
     def set_extract_instructions(self, fields: list, flags: list):
-        """
-        """
+        """ """
         self.extract_fields = fields
         self.extract_flags = flags
 
     def clear_extract_instructions(self):
-        """
-        """
+        """ """
         self.extract_fields = None
         self.extract_flags = None
 
