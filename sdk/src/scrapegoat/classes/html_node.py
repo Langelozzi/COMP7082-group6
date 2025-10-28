@@ -22,10 +22,30 @@ class HTMLNode:
         self.children = []
         self.retrieval_instructions = ""
         self.parent = parent
+        self.extract_fields = None
+        self.extract_flags = None
     
     def to_dict(self) -> str:
         """
         """
+        dict_representation = {}
+        if self.extract_fields is not None:
+            for field in self.extract_fields:
+                if field[0] == "@":
+                    attr_name = field[1:]
+                    dict_representation[attr_name] = self.html_attributes.get(attr_name)
+                else:
+                    if field == "id":
+                        dict_representation["id"] = self.id
+                    elif field == "tag_type":
+                        dict_representation["tag_type"] = self.tag_type
+                    elif field == "has_data":
+                        dict_representation["has_data"] = self.has_data
+                    elif field == "html_attributes":
+                        dict_representation["html_attributes"] = self.html_attributes
+                    elif field == "body":
+                        dict_representation["body"] = self.body
+            return dict_representation
         return {
             "id": self.id,
             "raw": self.raw,
@@ -35,13 +55,16 @@ class HTMLNode:
             "body": self.body,
             "children": [child.to_dict() for child in self.children],
             "retrieval_instructions": self.retrieval_instructions,
-            "parent": self.parent.id if self.parent else None
+            "parent": self.parent.id if self.parent else None,
+            "extract_fields": self.extract_fields,
+            "extract_flags": self.extract_flags,
         }
-    
+                
+
     def to_string(self) -> str:
         """
         """
-        return f"HTMLNode(id={self.id}, tag_type={self.tag_type}, has_data={self.has_data}, html_attributes={self.html_attributes}, body='{self.body}', children={len(self.children)}, parent={self.parent.id if self.parent else None}, retrieval_instructions='{self.retrieval_instructions}')"
+        return str(self.to_dict())
 
     def to_html(self, indent=0) -> str:
         """
@@ -118,6 +141,27 @@ class HTMLNode:
             return False
         return value in self.html_attributes.get(key)
     
+    def has_attribute(self, key, value=None) -> bool:
+        """
+        """
+        if key == "tag_type":
+            if value is None:
+                return self.tag_type is not None
+            return self.tag_type == value
+        if key == "id":
+            if value is None:
+                return self.id is not None
+            return str(self.id) == value
+        if key == "has_data":
+            if value is None:
+                return self.has_data
+            return self.has_data == value
+        if key == "body":
+            if value is None:
+                return self.body is not None
+            return self.body == value
+        return False
+    
     def is_descendant_of(self, tag_type) -> bool:
         """
         """
@@ -127,6 +171,18 @@ class HTMLNode:
         """
         """
         self.retrieval_instructions = instruction
+
+    def set_extract_instructions(self, fields: list, flags: list):
+        """
+        """
+        self.extract_fields = fields
+        self.extract_flags = flags
+
+    def clear_extract_instructions(self):
+        """
+        """
+        self.extract_fields = None
+        self.extract_flags = None
 
 
 def main():
