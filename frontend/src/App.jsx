@@ -10,7 +10,7 @@ import Results from "./Results";
 const theme = createTheme({
   palette: {
     mode: "dark",
-    background: { default: "#0D0709", paper: "#213945" },
+    background: { default: "#0D0709", paper: "#21332d" },
     primary: { main: "#91FFFB" },
     secondary: { main: "#448A9C" },
   },

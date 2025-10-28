@@ -1,7 +1,5 @@
 import React from 'react';
-import {
-  Paper, Stack, Typography, ToggleButtonGroup, ToggleButton, Box
-} from '@mui/material';
+import { Paper, Stack, Typography, ToggleButtonGroup, ToggleButton, Box } from '@mui/material';
 import UploadIcon from '@mui/icons-material/Upload';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
