@@ -18,7 +18,7 @@ function Home() {
       { id: 2, tag_type: 'h1', body: 'No Data Currently Displayed', hasData: true },
       { id: 3, tag_type: 'p', body: 'Please enter a URL', hasData: true },
     ],
-  };
+  }
 
   const buildTree = async (givenUrl) => {
     const targetUrl = givenUrl ?? url;
@@ -40,11 +40,15 @@ function Home() {
     } catch (err) {
       console.error('buildTree error:', err);
     }
-  };
+  }
 
-  const addToInstructions = (instruction) => {
+  const addInstruction = (instruction) => {
     setInstructions((prev) => [...prev, instruction]);
-  };
+  }
+
+  const deleteInstruction = (index) => {
+    setInstructions((prev) => prev.filter((_, i) => i !== index));
+  }
 
   const handleSetKey = (index, value) => {
     setInstructions((prev) =>
@@ -52,11 +56,11 @@ function Home() {
         i === index ? { ...inst, output: { ...(inst.output || {}), key: value } } : inst
       )
     );
-  };
+  }
 
   const handleFlowChange = (_, val) => {
     if (val) setFlow(val);
-  };
+  }
 
   useEffect(() => {
     if (url === lastBuiltUrlRef.current) return;
@@ -79,12 +83,14 @@ function Home() {
               placeholder="https://example.com"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              InputProps={{
-                sx: {
-                  fontSize: 16,
-                  height: 52,
-                  '& .MuiInputBase-input': { py: 1, lineHeight: 1.5 },
-                },
+              slotProps={{
+                input: {
+                  sx: {
+                    fontSize: 16,
+                    height: 52,
+                    '& .MuiInputBase-input': { py: 1, lineHeight: 1.5 },
+                  }
+                }
               }}
             />
           </Box>
@@ -97,7 +103,8 @@ function Home() {
         tree={tree}
         placeholderTree={placeholderRoot}
         instructions={retrieval_instructions}
-        onAddInstruction={addToInstructions}
+        onAddInstruction={addInstruction}
+        onDeleteInstruction={deleteInstruction}
         onSetKey={handleSetKey}
       />
 

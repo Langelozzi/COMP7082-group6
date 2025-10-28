@@ -5,7 +5,7 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
-function TreeNode({ node, addToInstructions = () => { }, level = 0 }) {
+function TreeNode({ node, addToInstructions=() => {}, level = 0 }) {
   const theme = useTheme();
   const [expanded, setExpanded] = useState(false);
 
@@ -28,7 +28,7 @@ function TreeNode({ node, addToInstructions = () => { }, level = 0 }) {
         style={{
           marginLeft: `${level * 40}px`,
           width: `calc(100% - ${level * 40}px)`,
-          backgroundColor: theme.palette.background.paper,
+          backgroundColor: theme.palette.background.default,
           color: theme.palette.text.primary,
         }}
         onClick={() => setExpanded(!expanded)}

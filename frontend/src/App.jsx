@@ -10,9 +10,9 @@ import Results from "./Results";
 const theme = createTheme({
   palette: {
     mode: "dark",
-    background: { default: "#0b0f19", paper: "#111827" },
-    primary: { main: "#60a5fa" },
-    secondary: { main: "#a78bfa" },
+    background: { default: "#0D0709", paper: "#213945" },
+    primary: { main: "#91FFFB" },
+    secondary: { main: "#448A9C" },
   },
   shape: { borderRadius: 14 },
 });

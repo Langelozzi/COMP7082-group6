@@ -1,7 +1,9 @@
 import { useTheme, alpha } from "@mui/material/styles";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import DeleteIcon from "@mui/icons-material/Delete";
+import IconButton from "@mui/material/IconButton";
 
-export default function NodeSelection({ instructions = [], onSetKey }) {
+export default function NodeSelection({ instructions=[], onSetKey, onDeleteInstruction }) {
   const theme = useTheme();
 
   if (!instructions?.length) {
@@ -77,7 +79,7 @@ export default function NodeSelection({ instructions = [], onSetKey }) {
           >
             {/* Index badge */}
             <div
-              className="absolute -left-4 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full text-white text-xs font-bold flex items-center justify-center shadow-md"
+              className="absolute -left-4 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full text-black text-xs font-bold flex items-center justify-center shadow-md"
               style={{ backgroundColor: theme.palette.primary.main }}
             >
               {idx + 1}
@@ -153,6 +155,11 @@ export default function NodeSelection({ instructions = [], onSetKey }) {
                 )}
               </div>
             </div>
+
+            {/* Delete button */}
+            <IconButton onClick={() => onDeleteInstruction?.(idx)} color="error" sx={{ ml: 'auto' }}>
+              <DeleteIcon />
+            </IconButton>
           </div>
         );
       })}

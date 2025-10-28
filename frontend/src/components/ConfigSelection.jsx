@@ -16,8 +16,9 @@ function ConfigSelection({
   tree,
   placeholderTree,
   instructions = [],
-  onAddInstruction = () => {},
-  onSetKey = () => {},
+  onAddInstruction = ()=>{},
+  onDeleteInstruction = ()=>{},
+  onSetKey = ()=>{},
 }) {
   const [importedFile, setImportedFile] = React.useState(null);
 
@@ -140,6 +141,7 @@ function ConfigSelection({
                 <NodeSelection
                   instructions={instructions}
                   onSetKey={onSetKey}
+                  onDeleteInstruction={onDeleteInstruction}
                 />
               </Box>
             </Paper>
