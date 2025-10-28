@@ -1,12 +1,31 @@
 """
 """
 
+from abc import ABC, abstractmethod
+
 from .conditions import InCondition
 
-class Thistle:
+
+class Thistle(ABC):
     """
     """
-    def __init__(self, action: str, count: int, element: str, conditions: list, flags: list):
+    @abstractmethod
+    def __init__(self, action: str):
+        """
+        """
+        self.action = action
+
+    @abstractmethod
+    def execute(self, root) -> any:
+        """
+        """
+        pass
+
+
+class SelectScrapeThistle:
+    """
+    """
+    def __init__(self, action: str, count: int, element: str, conditions: list=None, flags: list=None):
         """
         """
         self.action = action
@@ -58,6 +77,41 @@ class Thistle:
                     break
         return results
     
+
+class ExtractThistle:
+    """
+    """
+    def __init__(self, action: str, fields: list = None, flags: list = None):
+        """
+        """
+        self.action = action
+        self.fields = fields or []
+        self.flags = flags or []
+
+    def __str__(self):
+        """
+        """
+        return f"ExtractThistle(action={self.action}, fields={self.fields}, flags={self.flags})"
+    
+    def to_dict(self) -> dict:
+        """
+        """
+        return {
+            "action": self.action,
+            "fields": self.fields,
+            "flags": self.flags,
+        }
+    
+    def to_string(self) -> str:
+        """
+        """
+        return str(self.to_dict())
+    
+    def execute(self, node) -> None:
+        """
+        """
+        node.set_extract_instructions(self.fields, self.flags)
+        
 
 def main():
     """

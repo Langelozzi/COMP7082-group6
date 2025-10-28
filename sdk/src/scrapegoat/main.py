@@ -14,7 +14,14 @@ def main():
     shepherd = Shepherd()
     root = shepherd.sow(html)
 
-    Loom(root).weave()
+    query = """
+    SELECT table;
+    SCRAPE a;
+    EXTRACT @href;
+    """
+    results = shepherd.lead_goat(root, query)
+
+    print([result.to_dict() for result in results])
 
 
 if __name__ == "__main__":
