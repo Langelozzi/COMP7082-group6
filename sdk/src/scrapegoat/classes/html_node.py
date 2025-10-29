@@ -1,16 +1,37 @@
-"""
-"""
+""" """
 
 
 class HTMLNode:
-    """
-    """
-    VOID_TAGS = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}
+    """ """
+
+    VOID_TAGS = {
+        "area",
+        "base",
+        "br",
+        "col",
+        "embed",
+        "hr",
+        "img",
+        "input",
+        "link",
+        "meta",
+        "param",
+        "source",
+        "track",
+        "wbr",
+    }
     _id_counter = 0
 
-    def __init__(self, raw: str, tag_type: str, has_data: bool = False, html_attributes: dict[str, any] = None, body: str = "", parent=None):
-        """
-        """
+    def __init__(
+        self,
+        raw: str,
+        tag_type: str,
+        has_data: bool = False,
+        html_attributes: dict[str, any] = None,
+        body: str = "",
+        parent=None,
+    ):
+        """ """
         self.id = HTMLNode._id_counter
         HTMLNode._id_counter += 1
 
@@ -24,10 +45,9 @@ class HTMLNode:
         self.parent = parent
         self.extract_fields = None
         self.extract_flags = None
-    
+
     def to_dict(self) -> str:
-        """
-        """
+        """ """
         dict_representation = {}
         if self.extract_fields is not None:
             for field in self.extract_fields:
@@ -59,17 +79,16 @@ class HTMLNode:
             "extract_fields": self.extract_fields,
             "extract_flags": self.extract_flags,
         }
-                
 
     def to_string(self) -> str:
-        """
-        """
+        """ """
         return str(self.to_dict())
 
     def to_html(self, indent=0) -> str:
-        """
-        """
-        html_attribute_string = " ".join(f'{k}="{v}"' for k, v in self.html_attributes.items())
+        """ """
+        html_attribute_string = " ".join(
+            f'{k}="{v}"' for k, v in self.html_attributes.items()
+        )
         if html_attribute_string:
             opening = f"<{self.tag_type} {html_attribute_string}"
         else:
@@ -94,56 +113,51 @@ class HTMLNode:
 
     def __str__(self):
         return self.to_string()
-    
+
     def get_parent(self):
-        """
-        """
+        """ """
         return self.parent
-    
+
     def get_children(self):
-        """
-        """
+        """ """
         return self.children
-    
+
     def get_ancestors(self):
-        """
-        """
+        """ """
         ancestors = []
         current = self.parent
         while current:
             ancestors.append(current)
             current = current.parent
         return ancestors
-    
+
     def get_descendants(self, tag_type: str = None, **html_attributes) -> list:
-        """
-        """
+        """ """
         descendants = []
         for child in self.children:
-            if (tag_type is None or child.tag_type == tag_type) and all(child.html_attributes.get(k) == v for k, v in html_attributes.items()):
+            if (tag_type is None or child.tag_type == tag_type) and all(
+                child.html_attributes.get(k) == v for k, v in html_attributes.items()
+            ):
                 descendants.append(child)
             descendants.extend(child.get_descendants(tag_type, **html_attributes))
         return descendants
-    
+
     def preorder_traversal(self):
-        """
-        """
+        """ """
         yield self
         for child in self.children:
             yield from child.preorder_traversal()
 
     def has_html_attribute(self, key, value=None) -> bool:
-        """
-        """
+        """ """
         if value is None:
             return key in self.html_attributes
         if self.html_attributes.get(key) is None:
             return False
         return value in self.html_attributes.get(key)
-    
+
     def has_attribute(self, key, value=None) -> bool:
-        """
-        """
+        """ """
         if key == "tag_type":
             if value is None:
                 return self.tag_type is not None
@@ -161,33 +175,28 @@ class HTMLNode:
                 return self.body is not None
             return self.body == value
         return False
-    
+
     def is_descendant_of(self, tag_type) -> bool:
-        """
-        """
+        """ """
         return any(ancestor.tag_type == tag_type for ancestor in self.get_ancestors())
-    
+
     def set_retrieval_instructions(self, instruction: str):
-        """
-        """
+        """ """
         self.retrieval_instructions = instruction
 
     def set_extract_instructions(self, fields: list, flags: list):
-        """
-        """
+        """ """
         self.extract_fields = fields
         self.extract_flags = flags
 
     def clear_extract_instructions(self):
-        """
-        """
+        """ """
         self.extract_fields = None
         self.extract_flags = None
 
 
 def main():
-    """
-    """
+    """ """
     pass
 
 
