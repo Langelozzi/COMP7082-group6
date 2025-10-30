@@ -31,7 +31,7 @@ def __scrape_single(
     tree_root: HTMLNode, instruction: RetrievalInstruction
 ) -> list[dict]:
     query = __build_goatspeek_query(instruction)
-    scraped_nodes = shepherd.lead_goat(tree_root, query)
+    scraped_nodes = shepherd.herd(tree_root, query)
     raw_results = [node.to_dict() for node in scraped_nodes]
     mapped_results = __remap_dict_keys(raw_results, instruction.output)
     return mapped_results
@@ -39,7 +39,7 @@ def __scrape_single(
 
 def __get_tree_root(url: str) -> HTMLNode:
     seed = sheepdog.fetch(str(url))
-    return shepherd.sow(seed)
+    return shepherd.pasture(seed)
 
 
 def __build_goatspeek_query(instruction: RetrievalInstruction) -> str:
@@ -54,8 +54,6 @@ def __build_extract_statement_from_output(output: NodeOutput) -> str:
 
 
 def __remap_dict_keys(raw_results: list[dict], output: NodeOutput) -> list[dict]:
-    default_key = output.location.removeprefix(
-        "@"
-    )  # TODO: This is likely to change so we don't have to remove @
+    default_key = output.location
     new_key = output.key
     return [rename_key(res, default_key, new_key) for res in raw_results]
