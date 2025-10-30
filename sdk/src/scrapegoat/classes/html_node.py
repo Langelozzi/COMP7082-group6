@@ -17,7 +17,7 @@ class HTMLNode:
         self.raw = raw
         self.tag_type = tag_type
         self.has_data = has_data
-        self.html_attributes = html_attributes if html_attributes else {}
+        self.html_attributes = {"@"+k: v for k, v in (html_attributes or {}).items()}
         self.body = body
         self.children = []
         self.retrieval_instructions = ""
@@ -32,8 +32,7 @@ class HTMLNode:
         if self.extract_fields is not None:
             for field in self.extract_fields:
                 if field[0] == "@":
-                    attr_name = field[1:]
-                    dict_representation[attr_name] = self.html_attributes.get(attr_name)
+                    dict_representation[field] = self.html_attributes.get(field, None)
                 else:
                     if field == "id":
                         dict_representation["id"] = self.id
@@ -65,6 +64,11 @@ class HTMLNode:
         """
         """
         return str(self.to_dict())
+    
+    def __repr__(self):
+        """
+        """
+        return self.to_string()
 
     def to_html(self, indent=0) -> str:
         """
