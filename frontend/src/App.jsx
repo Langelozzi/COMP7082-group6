@@ -1,85 +1,58 @@
-import { useState } from 'react'
-import TreeNode from './TreeNode';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ThemeProvider, createTheme, CssBaseline, Box, GlobalStyles } from "@mui/material";
+import { useState } from "react";
+import Sidebar from "./components/Sidebar";
+import Login from "./Login";
+import Configs from "./Configs";
+import Home from "./Home";
+import Results from "./Results";
+
+const theme = createTheme({
+  palette: {
+    mode: "dark",
+    background: { default: "#0b0f19", paper: "#111827" },
+    primary: { main: "#60a5fa" },
+    secondary: { main: "#a78bfa" },
+  },
+  shape: { borderRadius: 14 },
+});
 
 function App() {
-  const [url, setUrl] = useState("");
-  const [tree, setTree] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userName, setUserName] = useState("Guest");
+  const handleAuthClick = () => setIsAuthenticated(p => !p);
 
-  const placeholder_data = {
-    "root": {
-      "id": 1,
-      "raw": "<html>...</html>",
-      "tag_type": "html",
-      "hasData": false,
-      "htmlAttributes": {},
-      "body": "",
-      "children": [
-        {
-          "id": 2,
-          "raw": "<h1>No Data Currently Displayed<h1/>",
-          "tag_type": "h1",
-          "hasData": true,
-          "htmlAttributes": { "class": "text" },
-          "body": "No Data Currently Displayed",
-          "retrieval_instructions": []
-        },
-        {
-          "id": 3,
-          "raw": "<p>Please enter a URL<p/>",
-          "tag_type": "p",
-          "hasData": true,
-          "htmlAttributes": { "class": "text" },
-          "body": "Please enter a URL",
-          "retrieval_instructions": []
-        }
-      ],
-      "retrieval_instructions": []
-    }
-  }
-
-  const buildTree = async function() {
-    fetch(import.meta.env.VITE_API_URL + '/api/v1/scraper/dom-tree/build', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ url })
-    })
-      .then(response => response.json())
-      .then(json => { setTree(json.root); console.log(json); })
-      .catch(error => console.error(error));
-  }
-  
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start bg-gradient-to-br from-fuchsia-950 via-purple-300 to-fuchsia-950 text-white p-8">
-      {/* Title */}
-      <h1 className="text-6xl text-emerald-200 font-extrabold mt-20 mb-10">Scrapegoat</h1>
+    <ThemeProvider theme={theme}>
 
-      {/* Input */}
-      <div className="flex space-x-4">
-        <input
-          type="text"
-          placeholder="Enter website URL..."
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          className="mb-10 w-96 p-4 text-lg bg-white rounded-2xl text-black shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-400"
-        />
+      {/* Makes scrollbar dark mode */}
+      <GlobalStyles styles={{
+        '::-webkit-scrollbar': { width: 8 },
+        '::-webkit-scrollbar-track': { background: '#0b0f19' },
+        '::-webkit-scrollbar-thumb': { background: '#333', borderRadius: 8 },
+        '*': { scrollbarWidth: 'thin', scrollbarColor: '#333 #0b0f19' },
+      }} />
 
-        <button
-          className="mb-10 px-8 py-4 text-lg font-bold bg-white rounded-2xl text-black shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-400 hover:bg-purple-200 transition"
-          onClick={buildTree}
-        >
-          Submit
-        </button>
-      </div>
-
-      {/* Output */}
-      <div className='w-[60rem]'>
-        {tree ? <TreeNode node={tree} /> : <TreeNode node={placeholder_data.root} />}
-      </div>
-    </div>
-  )
+      <CssBaseline />
+      <Router>
+        <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "background.default" }}>
+          <Sidebar
+            userName={userName}
+            isAuthenticated={isAuthenticated}
+            onAuthClick={handleAuthClick}
+          />
+          <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/configs" element={<Configs />} />
+              <Route path="/results" element={<Results />} />
+            </Routes>
+          </Box>
+        </Box>
+      </Router>
+    </ThemeProvider>
+  );
 }
 
-export default App
+export default App;
