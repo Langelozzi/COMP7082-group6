@@ -15,13 +15,13 @@ def main():
     root = shepherd.pasture(html)
 
     query = """
-    SELECT table;
-    SCRAPE a IF @href='/wiki/Help:Maintenance_template_removal';
-    EXTRACT @href, @title;
+    SCRAPE p;
+    EXTRACT id, body;
+    OUTPUT csv --filename "test" --filepath "./outputs";
     """
     results = shepherd.herd(root, query)
 
-    print([result.to_dict() for result in results])
+    # print([result.to_dict() for result in results])
 
 
 if __name__ == "__main__":

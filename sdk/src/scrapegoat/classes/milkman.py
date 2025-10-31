@@ -12,7 +12,8 @@ class Milkman:
     def deliver(self, results: list, deliver_command) -> None:
         """
         """
-        pass
+        deliver_command.execute(results)
+        return
 
 
 def main():
