@@ -6,7 +6,7 @@ import re
 from enum import Enum, auto
 from abc import ABC, abstractmethod
 
-from .command import GrazeCommand, ChurnCommand
+from .command import GrazeCommand, ChurnCommand, DeliverCommand
 from .conditions import InCondition, IfCondition
 
 
@@ -19,6 +19,7 @@ class TokenType(Enum):
     OPERATOR = auto()
     NUMBER = auto()
     IDENTIFIER = auto()
+    FILE_TYPE = auto()
     NEGATION = auto()
     FLAG = auto()
     SEMICOLON = auto()
@@ -42,18 +43,26 @@ class Token:
 
 class Tokenizer:
     def __init__(self):
-        self.ACTIONS = {"select", "scrape", "extract"}
+        self.ACTIONS = {"select", "scrape", "extract", "output"}
         self.CONDITIONALS = {"if", "in"}
         self.KEYWORDS = {"position"}
         self.OPERATORS = {"=", "!="}
         self.NEGATIONS = {"not"}
+        self.FILE_TYPES = {"json", "csv"}
         self.FLAGS = {}
 
     def tokenize(self, query: str) -> list[Token]:
         """
         """
         tokens = []
-        pattern = (r'(\bSELECT\b|\bSCRAPE\b|\bEXTRACT\b|\bIN\b|\bIF\b|'r'!=|==|=|;|\n|'r'"(?:[^"]*)"|\'(?:[^\']*)\'|'r'@?[A-Za-z_][A-Za-z0-9_-]*|'r'\d+)')
+        pattern = (
+            r'(--[A-Za-z0-9_-]+|'
+            r'\bSELECT\b|\bSCRAPE\b|\bEXTRACT\b|\bOUTPUT\b|\bIN\b|\bIF\b|'
+            r'!=|==|=|;|\n|'
+            r'"(?:[^"]*)"|\'(?:[^\']*)\'|'
+            r'@?[A-Za-z_][A-Za-z0-9_-]*|'
+            r'\d+)'
+        )
 
         for match in re.finditer(pattern, query.replace("\n", ""), flags=re.IGNORECASE):
             raw_value = match.group(0)
@@ -67,6 +76,8 @@ class Tokenizer:
         if raw_value[0] in ('"', "'") and raw_value[-1] == raw_value[0]:
             return Token(TokenType.IDENTIFIER, raw_value[1:-1])
         val_lower = raw_value.lower()
+        if val_lower.startswith("--"):
+            return Token(TokenType.FLAG, val_lower[2:].replace("-", "_"))
         if val_lower in self.ACTIONS:
             return Token(TokenType.ACTION, val_lower)
         if val_lower in self.CONDITIONALS:
@@ -81,6 +92,8 @@ class Tokenizer:
             return Token(TokenType.SEMICOLON, raw_value)
         if val_lower.isdigit():
             return Token(TokenType.NUMBER, val_lower)
+        if val_lower in self.FILE_TYPES:
+            return Token(TokenType.FILE_TYPE, val_lower)
         return Token(TokenType.IDENTIFIER, raw_value)
     
 
@@ -92,6 +105,35 @@ class Parser(ABC):
         """
         """
         pass
+
+
+class FlagParser(Parser):
+    """
+    """
+    def __init__(self):
+        """
+        """
+        pass
+
+    def parse(self, tokens, index) -> tuple:
+        """
+        """
+        flags = {}
+        
+        while tokens[index].type != TokenType.SEMICOLON:
+            token = tokens[index]
+            if token.type != TokenType.FLAG:
+                raise SyntaxError(f"Expected flag at token {token}")
+            flag_name = token.value
+            index += 1
+            token = tokens[index]
+            if token.type != TokenType.IDENTIFIER:
+                flag_value = True
+            else:
+                flag_value = token.value
+                index += 1
+            flags[flag_name] = flag_value
+        return flags, index
 
 
 class ConditionParser(Parser):
@@ -168,10 +210,11 @@ class ConditionParser(Parser):
 class ScrapeSelectParser(Parser):
     """
     """
-    def __init__(self, condition_parser: ConditionParser):
+    def __init__(self, condition_parser: ConditionParser, flag_parser: FlagParser):
         """
         """
         self.condition_parser = condition_parser
+        self.flag_parser = flag_parser
 
     def parse(self, tokens, index) -> tuple:
         """
@@ -193,21 +236,26 @@ class ScrapeSelectParser(Parser):
 
         # conditions
         conditions = []
-        while tokens[index].type != TokenType.SEMICOLON:
+        while tokens[index].type != TokenType.SEMICOLON and tokens[index].type != TokenType.FLAG:
             condition, index = self.condition_parser.parse(tokens, index, element)
             conditions.append(condition)
 
-        instruction = GrazeCommand(action=action, count=count, element=element, conditions=conditions)
+        # flags
+        flags = {}
+        if tokens[index].type == TokenType.FLAG:
+            flags, index = self.flag_parser.parse(tokens, index)
+
+        instruction = GrazeCommand(action=action, count=count, element=element, conditions=conditions, **flags)
         return instruction, index + 1
     
 
 class ExtractParser(Parser):
     """
     """
-    def __init__(self):
+    def __init__(self, flag_parser: FlagParser):
         """
         """
-        pass
+        self.flag_parser = flag_parser
 
     def parse(self, tokens, index) -> tuple:
         """
@@ -216,12 +264,46 @@ class ExtractParser(Parser):
 
         index += 1
         
-        while tokens[index].type != TokenType.SEMICOLON:
+        # fields
+        while tokens[index].type != TokenType.SEMICOLON and tokens[index].type != TokenType.FLAG:
             if tokens[index].type == TokenType.IDENTIFIER:
                 fields.append(tokens[index].value)
             index += 1
         
-        instruction = ChurnCommand(fields=fields, flags=[])
+        # flags
+        flags = {}
+        if tokens[index].type == TokenType.FLAG:
+            flags, index = self.flag_parser.parse(tokens, index)
+
+        instruction = ChurnCommand(fields=fields, **flags)
+        return instruction, index + 1
+    
+
+class OutputParser(Parser):
+    """
+    """
+    def __init__(self, flag_parser: FlagParser):
+        """
+        """
+        self.flag_parser = flag_parser
+
+    def parse(self, tokens, index) -> tuple:
+        """
+        """
+        index += 1
+
+        # file type
+        if tokens[index].type != TokenType.FILE_TYPE:
+            raise SyntaxError(f"Expected file type at token {tokens[index]}")
+        file_type = tokens[index].value
+        index += 1
+
+        # flags
+        flags = {}
+        if tokens[index].type == TokenType.FLAG:
+            flags, index = self.flag_parser.parse(tokens, index)
+
+        instruction = DeliverCommand(file_type=file_type, **flags)
         return instruction, index + 1
 
 
@@ -231,10 +313,12 @@ class Interpeter:
     def __init__(self):
         self.tokenizer = Tokenizer()
         self.condition_parser = ConditionParser()
+        self.flag_parser = FlagParser()
         self.action_parsers = {
-            "scrape": ScrapeSelectParser(self.condition_parser),
-            "select": ScrapeSelectParser(self.condition_parser),
-            "extract": ExtractParser(),
+            "scrape": ScrapeSelectParser(self.condition_parser, self.flag_parser),
+            "select": ScrapeSelectParser(self.condition_parser, self.flag_parser),
+            "extract": ExtractParser(self.flag_parser),
+            "output": OutputParser(self.flag_parser),
         }
 
     def interpret(self, query: str) -> list:

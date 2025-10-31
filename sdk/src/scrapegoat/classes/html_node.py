@@ -1,19 +1,18 @@
 """
 """
 
+import uuid
+
 
 class HTMLNode:
     """
     """
     VOID_TAGS = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}
-    _id_counter = 0
 
     def __init__(self, raw: str, tag_type: str, has_data: bool = False, html_attributes: dict[str, any] = None, body: str = "", parent=None):
         """
         """
-        self.id = HTMLNode._id_counter
-        HTMLNode._id_counter += 1
-
+        self.id = str(uuid.uuid4())
         self.raw = raw
         self.tag_type = tag_type
         self.has_data = has_data
@@ -23,13 +22,16 @@ class HTMLNode:
         self.retrieval_instructions = ""
         self.parent = parent
         self.extract_fields = None
-        self.extract_flags = None
+        self.extract_flags = {"ignore_children": False, "ignore_grandchildren": False}
     
-    def to_dict(self) -> str:
+    def to_dict(self, ignore_children=False) -> str:
         """
         """
+        ignore_children = self.extract_flags["ignore_children"] or ignore_children
+        for child in self.children:
+            child.set_extract_instructions(fields=self.extract_fields, ignore_children=self.extract_flags["ignore_grandchildren"])
         dict_representation = {}
-        if self.extract_fields is not None:
+        if self.extract_fields:
             for field in self.extract_fields:
                 if field[0] == "@":
                     dict_representation[field] = self.html_attributes.get(field, None)
@@ -44,7 +46,30 @@ class HTMLNode:
                         dict_representation["html_attributes"] = self.html_attributes
                     elif field == "body":
                         dict_representation["body"] = self.body
+                    elif field == "children" and not ignore_children:
+                        dict_representation["children"] = [child.to_dict() for child in self.children]
+                    elif field == "retrieval_instructions":
+                        dict_representation["retrieval_instructions"] = self.retrieval_instructions
+                    elif field == "parent":
+                        dict_representation["parent"] = self.parent.id if self.parent else None
+                    elif field == "extract_fields":
+                        dict_representation["extract_fields"] = self.extract_fields
+                    elif field == "extract_flags":
+                        dict_representation["extract_flags"] = self.extract_flags
             return dict_representation
+        if ignore_children:
+            return {
+                "id": self.id,
+                "raw": self.raw,
+                "tag_type": self.tag_type,
+                "has_data": self.has_data,
+                "html_attributes": self.html_attributes,
+                "body": self.body,
+                "retrieval_instructions": self.retrieval_instructions,
+                "parent": self.parent.id if self.parent else None,
+                "extract_fields": self.extract_fields,
+                "extract_flags": self.extract_flags,
+            }
         return {
             "id": self.id,
             "raw": self.raw,
@@ -57,7 +82,7 @@ class HTMLNode:
             "parent": self.parent.id if self.parent else None,
             "extract_fields": self.extract_fields,
             "extract_flags": self.extract_flags,
-        }           
+        }    
 
     def to_string(self) -> str:
         """
@@ -175,11 +200,11 @@ class HTMLNode:
         """
         self.retrieval_instructions = instruction
 
-    def set_extract_instructions(self, fields: list, flags: list):
+    def set_extract_instructions(self, fields: list=None, ignore_children=False, ignore_grandchildren=False):
         """
         """
-        self.extract_fields = fields
-        self.extract_flags = flags
+        self.extract_fields = fields or None
+        self.extract_flags = {"ignore_children": ignore_children, "ignore_grandchildren": ignore_grandchildren}
 
     def clear_extract_instructions(self):
         """
