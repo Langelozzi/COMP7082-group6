@@ -42,7 +42,7 @@ class IfCondition(Condition):
         if self.query_tag is None:
             raise ValueError("query_tag is required for IF condition")
         if self.key[0] == "@":
-            return node.has_html_attribute(self.key[1:], self.value) and node.tag_type == self.query_tag
+            return node.has_html_attribute(self.key, self.value) and node.tag_type == self.query_tag
         else:
             return node.has_attribute(self.key, self.value) and node.tag_type == self.query_tag
 

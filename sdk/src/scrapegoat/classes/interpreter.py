@@ -6,7 +6,7 @@ import re
 from enum import Enum, auto
 from abc import ABC, abstractmethod
 
-from .thistle import SelectScrapeThistle, ExtractThistle
+from .command import GrazeCommand, ChurnCommand
 from .conditions import InCondition, IfCondition
 
 
@@ -197,7 +197,7 @@ class ScrapeSelectParser(Parser):
             condition, index = self.condition_parser.parse(tokens, index, element)
             conditions.append(condition)
 
-        instruction = SelectScrapeThistle(action=action, count=count, element=element, conditions=conditions)
+        instruction = GrazeCommand(action=action, count=count, element=element, conditions=conditions)
         return instruction, index + 1
     
 
@@ -214,7 +214,6 @@ class ExtractParser(Parser):
         """
         fields = []
 
-        action = tokens[index].value
         index += 1
         
         while tokens[index].type != TokenType.SEMICOLON:
@@ -222,11 +221,11 @@ class ExtractParser(Parser):
                 fields.append(tokens[index].value)
             index += 1
         
-        instruction = ExtractThistle(action=action, fields=fields, flags=[])
+        instruction = ChurnCommand(fields=fields, flags=[])
         return instruction, index + 1
 
 
-class ThistleInterpreter:
+class Interpeter:
     """
     """
     def __init__(self):
